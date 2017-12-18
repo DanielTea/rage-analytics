@@ -1,0 +1,7 @@
+streamlink --force --output /Users/danieltremer/Documents/GIT-Repositories/rage-analytics/Engine/streaming_util/foo.ts https://www.twitch.tv/tsm_viss best
+
+ffmpeg -i /Users/danieltremer/Documents/GIT-Repositories/rage-analytics/Engine/streaming_util/foo.ts -s 1600x900 -f image2 /Users/danieltremer/Documents/GIT-Repositories/rage-analytics/Engine/streaming_util/foo-%03d.jpeg
+
+streamlink -O https://www.twitch.tv/tsm_viss best | ffmpeg -re -v quiet -fflags +genpts+igndts -i pipe:0 -bsf h264_mp4toannexb -vcodec libx264 -tune zerolatency -acodec ac3 -f mpegts pipe:1
+
+streamlink https://www.twitch.tv/tsm_viss best --stdout | ffmpeg -i pipe:0 -c copy -bsf:a aac_adtstoasc -f mp4 -movflags empty_moov+separate_moof+frag_keyframe pipe:1

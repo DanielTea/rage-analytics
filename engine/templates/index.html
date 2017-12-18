@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Rage-Analytics</title>
+    <!-- Load c3.css -->
+    <link href="./static/c3.css" rel="stylesheet">
+
+    <!-- Load d3.js and c3.js -->
+    <script src="./static/d3.v3.min.js" charset="utf-8"></script>
+    <script src="./static/c3.min.js"></script>
+    <!--<script src="./static/pubnub-c3.js"></script>-->
+    <script src="./static/eon-chart.js"></script>
+    <script type="text/javascript" src="https://pubnub.github.io/eon/v/eon/1.0.0/eon.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://pubnub.github.io/eon/v/eon/1.0.0/eon.css"/>
+     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+</head>
+<body>
+
+<p>This is the latest output: <span id="latest"></span></p>
+
+
+<div id='chart'></div>
+
+<ul id="output"></ul>
+<script>
+
+    var pubnub = new PubNub({
+          publishKey: 'pub-c-2ffbbb85-0096-40e2-88b7-0bd19546f9f8',
+          subscribeKey: 'sub-c-ce4c7502-c7b7-11e7-afd4-56ea5891403c'
+        });
+
+    var channel = 'bar-chart';
+
+    eon.chart({
+      pubnub: pubnub,
+      channels: [channel],
+      rate: 10,
+      generate: {
+        bindto: '#chart',
+        data: {
+          labels: true,
+          type: 'bar'
+        },
+        bar: {
+          width: {
+            ratio: 0.5
+          }
+        },
+        tooltip: {
+            show: false
+        }
+      }
+    });
+
+    setInterval(function(){
+
+
+        $.getJSON("data",
+            function (data) {
+
+            pubnub.publish({
+                channel: channel,
+                message: {
+                  eon: {
+                    'Angry': parseFloat(data.angry),
+                    'Fear': parseFloat(data.fear),
+                    'Happy': parseFloat(data.happy),
+                    'Sad': parseFloat(data.sad),
+                    'Surprise': parseFloat(data.surprise),
+                    'Neutral': parseFloat(data.neutral)
+                  }
+                }
+            });
+            }
+    );
+
+
+    }, 10);
+
+
+    </script>
+
+</body>
+
+</html>
+

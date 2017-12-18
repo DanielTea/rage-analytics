@@ -1,0 +1,21 @@
+{
+
+  "manifest_version": 2,
+  "name": "RageAnalytics",
+  "version": "1.0",
+
+  "description": "makes twitch h*cking awesome",
+
+  "icons": {
+  "48": "icons/icon-48.png",
+  "96": "icons/icon-96.png"
+},
+
+  "content_scripts": [
+    {
+      "matches": ["*://*.twitch.tv/directory/game/*"],
+      "js": ["socketio.min.js","extension-cs.js"]
+    }
+  ]
+
+}
