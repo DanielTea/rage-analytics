@@ -14,7 +14,8 @@
   "content_scripts": [
     {
       "matches": ["*://*.twitch.tv/directory/game/*"],
-      "js": ["socketio.min.js","extension-cs.js"]
+      "js": ["socketio.min.js","extension-cs.js"],
+      "css": ["rage-styles.css"]
     }
   ]
 
