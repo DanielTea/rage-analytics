@@ -23,7 +23,7 @@ emotion_labels = get_labels('fer2013')
 
 # streaming Parameter
 stream_filename="stream0"
-stream_link="https://www.twitch.tv/moondye7"
+stream_link="https://www.twitch.tv/tsm_viss"
 
 # hyper-parameters for bounding boxes shape
 frame_window = 10
