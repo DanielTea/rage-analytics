@@ -8,41 +8,40 @@
  #F9C4C5
 
  secondary color
- #EF5D60
-
+ #
 
 
 
 
  */
-.top-nav__menu {
+
+.rage-red-bg {
   background-color: #FB3640 !important;
 }
 
-/* secondary color */
-.tw-button {
+.rage-red-bg-second {
   background-color: #EF5D60 !important;
-  border-color: transparent !important;
-  outline-color: transparent !important;
+
 }
 
- /* text color */
-.top-nav__nav-link, .tw-button__text, .directory-header__link {
+.rage-no-border {
+  border-color: transparent !important;
+}
+
+.rage-color {
   color: #F9C4C5 !important;
 }
 
-.directory-tabs__item {
+.rage-color-darker {
   color: #FB3640 !important;
 }
 
-.directory-tabs__item--selected:after, .directory-tabs__item--selected:hover:after, .directory-tabs__item:active:after, .tw-theme--dark .directory-tabs__item--selected:after, .tw-theme--dark .directory-tabs__item--selected:hover:after, .tw-theme--dark .directory-tabs__item:active:after, .tw-theme--light .directory-tabs__item--selected:after, .tw-theme--light .directory-tabs__item--selected:hover:after, .tw-theme--light .directory-tabs__item:active:after {
-      border-bottom-color: #FB3640 !important;
+.rage-red-bottom-border::after {
+  border-bottom-color: #FB3640 !important;
 }
 
-.tw-button--hollow {
-  color: #F9C4C5 !important;
-}
-
-.tw-theme--dark .side-nav__theme-wrapper {
-  background-color: #460A04 !important;
+.rage-animation-init {
+  transition: background-color 1s ease,
+              border-color 1s ease,
+              color 1s ease;
 }

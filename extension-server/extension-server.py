@@ -22,7 +22,13 @@ def handle_json(json):
 @socketio.on('sendTopFiveStreamer')
 def handle_top_five_streamer(arg1):
     print('received args: ' + str(arg1))
-    emit('rageIncoming', str(arg1[randint(0, 4)]))
+    if (randint(0,10) > 3):
+        print("rage")
+        emit('rageIncoming', str(arg1[randint(0, 4)]))
+    else:
+        print("no rage")
+        emit('rageIncoming', "%no-rage")
+
 
 #http://127.0.0.1:5000/
 if __name__ == '__main__':
