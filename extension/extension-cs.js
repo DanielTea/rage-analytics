@@ -1,6 +1,7 @@
 var socket = io.connect('http://127.0.0.1:5000/');
 
-
+const heartbeatTime = 3000;
+const overlayStyle = "rage-overlay-style-darker";
 const selectorsAndClasses =
   [
     {selector: ".top-nav__menu", className: "rage-red-bg" },
@@ -24,7 +25,7 @@ setInterval( function()
 {
   console.log("send data");
   socket.emit('sendTopFiveStreamer', getData());
-}, 5000);
+}, heartbeatTime);
 
 
 function getData()
@@ -63,6 +64,8 @@ socket.on("rageIncoming", function(msg)
       document.querySelector("a[href='" + item + "'] > div").style.border = "" ;
   });
 
+  unshowRage();
+
   if (msg == "%no-rage")
   {
     deredify();
@@ -71,10 +74,44 @@ socket.on("rageIncoming", function(msg)
   else
   {
     redify();
-    document.querySelector("a[href='" + msg + "'] > div").style.border = "50px solid #e2b719"
+    showRage(msg);
     console.log("RAGE RAGE BABY");
   }
 });
+
+function showRage(msg)
+{
+  console.log(msg);
+
+  let streamerName = msg.split("/")[1];
+  let rageItem = document.querySelector("a[data-a-target='live-channel-card-thumbnail-link'][href='" + msg + "']");
+
+  let overlayDiv = document.createElement("div");
+  overlayDiv.classList.add("rage-overlay");
+
+  setTimeout(function() {
+    overlayDiv.classList.add(overlayStyle);
+  }, 0)
+
+  overlayDiv.setAttribute("id", "rage-overlay-" + streamerName);
+
+  let overlayText = document.createElement("span");
+  overlayText.textContent = "dont cry " + streamerName;
+  overlayText.classList.add("rage-overlay-text");
+
+  rageItem.appendChild(overlayDiv);
+  rageItem.appendChild(overlayText);
+
+}
+
+function unshowRage()
+{
+  let allOverlays = S(".rage-overlay, .rage-overlay-text");
+
+  allOverlays.forEach(item => {
+      item.remove();
+  });
+}
 
 function addClassToList(list, className)
 {
@@ -88,5 +125,5 @@ function removeClassToList(list, className)
 
 function S(selector)
 {
-  return document.querySelectorAll(selector);
+  return Array.from( document.querySelectorAll(selector) );
 }

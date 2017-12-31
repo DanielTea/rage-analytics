@@ -41,7 +41,40 @@
 }
 
 .rage-animation-init {
-  transition: background-color 1s ease,
-              border-color 1s ease,
-              color 1s ease;
+  transition: background-color 0.3s ease,
+              border-color 0.3s ease,
+              color 0.3s ease;
+}
+
+.rage-overlay {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+
+}
+
+.rage-overlay-text {
+  position: absolute;
+  color:white;
+  z-index: 10000;
+  bottom: 5px;
+  font-size: 24px;
+  text-align: center;
+  width: 100%;
+}
+.rage-overlay-style {
+  opacity: 0.9;
+  box-shadow: inset 0 0 92px #fca175;
+  background-image: linear-gradient(45deg, #fb3640, #f46036);
+}
+
+.rage-overlay-style-darker {
+  opacity: 0.9;
+	box-shadow: inset 0 0 62px #5b3a33;
+	background-image: linear-gradient(45deg, #fb3640, #f46036);
 }
