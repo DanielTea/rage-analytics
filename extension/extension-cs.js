@@ -30,7 +30,7 @@ setInterval( function()
 
 function getData()
 {
-  let list = Array.from( document.querySelectorAll(".live-channel-card__channel") );
+  let list = S(".live-channel-card__channel");
 
   let fiveFirst = list.slice(0,5);
   let data = [];
@@ -98,6 +98,7 @@ function showRage(msg)
   let overlayText = document.createElement("span");
   overlayText.textContent = "dont cry " + streamerName;
   overlayText.classList.add("rage-overlay-text");
+  overlayText.classList.add("shake");
 
   rageItem.appendChild(overlayDiv);
   rageItem.appendChild(overlayText);
