@@ -12,5 +12,7 @@ tmtagsHistory
 *.sublime-project
 *.sublime-workspace
 .bundle
-
+engine/Engine/__pycache__/
+engine/Engine/streaming_util/__pycache__/
+engine/Engine/utils/__pycache__/
 .mp4

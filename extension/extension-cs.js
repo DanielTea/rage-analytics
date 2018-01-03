@@ -13,6 +13,16 @@ const selectorsAndClasses =
 
   ];
 
+const overlayMessages = {"rage": [  "don't cry, ",
+                                    "too bad, ",
+                                    "git gud, ",
+                                    "chin up, ",
+                                    "poor ",
+                                    "gg, ",
+                                    "R.I.P. ",
+                                    ">:( ",
+                                    "get rekt, ",
+                                    "little Hulk "]}
 
 socket.on('connect', function()
 {
@@ -96,7 +106,7 @@ function showRage(msg)
   overlayDiv.setAttribute("id", "rage-overlay-" + streamerName);
 
   let overlayText = document.createElement("span");
-  overlayText.textContent = "dont cry " + streamerName;
+  overlayText.textContent = getRandomMessage("rage") + streamerName;
   overlayText.classList.add("rage-overlay-text");
   overlayText.classList.add("shake");
 
@@ -112,6 +122,11 @@ function unshowRage()
   allOverlays.forEach(item => {
       item.remove();
   });
+}
+
+function getRandomMessage(emotion) {
+  let index = Math.floor(Math.random() * overlayMessages[emotion].length);
+  return overlayMessages[emotion][index];
 }
 
 function addClassToList(list, className)
