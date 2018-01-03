@@ -12,7 +12,7 @@ const selectorsAndClasses =
     {selector: ".directory-tabs__item--selected", className: "rage-red-bottom-border" },
 
   ];
-
+const overlayMessages = "";
 
 socket.on('connect', function()
 {
