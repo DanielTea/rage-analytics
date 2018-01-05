@@ -17,6 +17,14 @@
       "js": ["socketio.min.js","extension-cs.js"],
       "css": ["rage-styles.css"]
     }
-  ]
+  ],
+
+  "web_accessible_resources": [
+   "fonts/DrawingBlood.ttf",
+   "fonts/Punk.ttf",
+   "fonts/Sharrpe Gothik.ttf",
+   "fonts/TPF Krikkel Krakkel.ttf",
+   "fonts/youmurdererbb_reg.otf"
+ ]
 
 }

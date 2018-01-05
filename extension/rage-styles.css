@@ -14,8 +14,7 @@
 
 
  */
-
-.rage-red-bg {
+ .rage-red-bg {
   background-color: #FB3640 !important;
 }
 
@@ -56,6 +55,23 @@
   opacity: 0;
   transition: opacity 0.3s ease;
 
+}
+
+
+.rage-font-1 {
+  font-family: "youmurdererbb_reg";
+}
+.rage-font-2 {
+  font-family: "Punk";
+}
+.rage-font-3 {
+  font-family: "DrawingBlood";
+}
+.rage-font-4 {
+  font-family: "Sharrpe";
+}
+.rage-font-5 {
+  font-family: "TPF";
 }
 
 .rage-overlay-text {
@@ -99,4 +115,30 @@
 
 .shake {
   animation: wiggle 0.4s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+
+@font-face {
+ font-family: "youmurdererbb_reg";
+ src: url("chrome-extension://__MSG_@@extension_id__/fonts/youmurdererbb_reg.otf") format("opentype");
+}
+
+@font-face {
+ font-family: "Punk";
+ src: url("chrome-extension://__MSG_@@extension_id__/fonts/Punk.ttf");
+}
+
+@font-face {
+ font-family: "DrawingBlood";
+ src: url("chrome-extension://__MSG_@@extension_id__/fonts/DrawingBlood.ttf");
+}
+
+@font-face {
+ font-family: "Sharrpe";
+ src: url("chrome-extension://__MSG_@@extension_id__/fonts/Sharrpe.ttf");
+}
+
+@font-face {
+ font-family: "TPF";
+ src: url("chrome-extension://__MSG_@@extension_id__/fonts/TPF.ttf");
 }

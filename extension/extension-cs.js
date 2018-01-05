@@ -56,7 +56,7 @@ function getData()
 function addAnimationInit()
 {
   let selector = ".top-nav__menu, .tw-button, .top-nav__nav-link, .tw-button__text, .directory-header__link, .tw-button--hollow, .directory-tabs__item";
-  addClassToList( S(selector) , "rage-animation-init" )
+  addClassToList( S(selector) , "rage-animation-init" );
 }
 function redify()
 {
@@ -67,6 +67,7 @@ function deredify()
 {
   selectorsAndClasses.forEach(item => removeClassToList( S(item.selector) , item.className ));
 }
+
 
 socket.on("rageIncoming", function(msg)
 {
@@ -111,6 +112,8 @@ function showRage(msg)
   let overlayText = document.createElement("span");
   overlayText.textContent = getRandomMessage("rage").replace("NAME", streamerName);
   overlayText.classList.add("rage-overlay-text");
+  overlayText.classList.add("rage-font-" + getRandomInt(1,4));
+
   overlayText.classList.add("shake");
 
   rageItem.appendChild(overlayDiv);
@@ -145,4 +148,10 @@ function removeClassToList(list, className)
 function S(selector)
 {
   return Array.from( document.querySelectorAll(selector) );
+}
+
+function getRandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
 }
