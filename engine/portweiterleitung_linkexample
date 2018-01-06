@@ -1,0 +1,6 @@
+
+ssh -L 8888:localhost:8888 dt024@deepthought.mi.hdm-stuttgart.de
+
+http://0.0.0.0:8888/stream_zero?link=https://www.twitch.tv/sacriel&resolution=360p
+
+http://0.0.0.0:8888/stream?links=https://www.twitch.tv/a541021,https://www.twitch.tv/lostaiming,https://www.twitch.tv/fps_shaka,https://www.twitch.tv/cawai0147&resolution=360p

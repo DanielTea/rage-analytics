@@ -5,10 +5,11 @@ import subprocess as sp
 from queue import Queue
 
 class VideoStreamer:
-    def __init__(self, twitch_url, queueSize=128, resolution="720p"):
+    def __init__(self, twitch_url, queueSize=128, resolution='720p', n_frame=10):
         self.stopped = False
         self.twitch_url = twitch_url
         self.res = resolution
+        self.n_frame = n_frame
 
         # initialize the queue used to store frames read from
         # the video stream
@@ -52,15 +53,25 @@ class VideoStreamer:
 
     def update_buffer(self):
 
+        count_frame = 0
+
         while True:
 
-            raw_image = self.pipe.stdout.read(self.byte_lenght*self.byte_width*3)  # read length*width*3 bytes (= 1 frame)
+            if count_frame % self.n_frame == 0:
 
-            frame = numpy.fromstring(raw_image, dtype='uint8').reshape((self.byte_width, self.byte_lenght, 3))
+                raw_image = self.pipe.stdout.read(
+                    self.byte_lenght * self.byte_width * 3)  # read length*width*3 bytes (= 1 frame)
 
-            if not self.Q.full():
-                self.Q.put(frame)
+                frame = numpy.fromstring(raw_image, dtype='uint8').reshape((self.byte_width, self.byte_lenght, 3))
+
+                if not self.Q.full():
+                    self.Q.put(frame)
+                    count_frame += 1
+                else:
+                    count_frame += 1
+                    continue
             else:
+                count_frame += 1
                 continue
 
     def read(self):
