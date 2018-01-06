@@ -65,9 +65,7 @@
 .rage-font-4 {
   font-family: "Sharrpe";
 }
-.rage-font-5 {
-  font-family: "TPF";
-}
+
 
 .rage-overlay-text {
   position: absolute;
@@ -131,9 +129,4 @@
 @font-face {
  font-family: "Sharrpe";
  src: url("chrome-extension://__MSG_@@extension_id__/fonts/Sharrpe.ttf");
-}
-
-@font-face {
- font-family: "TPF";
- src: url("chrome-extension://__MSG_@@extension_id__/fonts/TPF.ttf");
 }

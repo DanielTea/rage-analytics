@@ -13,17 +13,33 @@
 
   "content_scripts": [
     {
-      "matches": ["*://*.twitch.tv/directory/game/*"],
+      "matches": ["*://*.twitch.tv/*"],
       "js": ["socketio.min.js","extension-cs.js"],
       "css": ["rage-styles.css"]
     }
   ],
 
+  "permissions": [
+    "https://twitch.tv/",
+    "tabs"
+  ],
+
+  "page_action":
+  {
+    "default_icon": "icons/icon-96.png",
+    "default_title": "RAGE RAGE BABY"
+  },
+
+  "background":
+  {
+    "scripts": ["background-script.js"]
+  },
+
   "web_accessible_resources": [
    "fonts/DrawingBlood.ttf",
    "fonts/Punk.ttf",
-   "fonts/Sharrpe Gothik.ttf",
-   "fonts/TPF Krikkel Krakkel.ttf",
+   "fonts/Sharrpe.ttf",
+   "fonts/TPF.ttf",
    "fonts/youmurdererbb_reg.otf"
  ]
 
