@@ -1,0 +1,4 @@
+
+ssh -L 8888:localhost:8888 dt024@deepthought.mi.hdm-stuttgart.de
+
+http://0.0.0.0:8888/stream_zero?link=https://www.twitch.tv/sacriel&resolution=360p

@@ -1,5 +1,6 @@
 import cv2
-import matplotlib.pyplot as plt
+import matplotlib as mpl
+mpl.use('Agg')
 import numpy as np
 from keras.preprocessing import image
 
@@ -31,7 +32,7 @@ def draw_text(coordinates, image_array, text, color, x_offset=0, y_offset=0,
                 font_scale, color, thickness, cv2.LINE_AA)
 
 def get_colors(num_classes):
-    colors = plt.cm.hsv(np.linspace(0, 1, num_classes)).tolist()
+    colors = mpl.pyplot.cm.hsv(np.linspace(0, 1, num_classes)).tolist()
     colors = np.asarray(colors) * 255
     return colors
 
