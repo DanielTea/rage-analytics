@@ -1,4 +1,3 @@
-
  /*
 
  main color
@@ -10,10 +9,8 @@
  secondary color
  #
 
-
-
-
  */
+
  .rage-red-bg {
   background-color: #FB3640 !important;
 }
@@ -54,9 +51,7 @@
   z-index: 9999;
   opacity: 0;
   transition: opacity 0.3s ease;
-
 }
-
 
 .rage-font-1 {
   font-family: "youmurdererbb_reg";
