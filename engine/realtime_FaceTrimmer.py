@@ -8,6 +8,8 @@ import face_recognition
 import time
 
 
+######## FACE_RECOGNITION
+
 def face_recognition_tester(image_path):
     # Load the jpg file into a numpy array
     image = face_recognition.load_image_file(image_path)
@@ -75,3 +77,7 @@ print("cnn duration:", cnn_duration, "s")
 ## RESULTS
 # normal duration:  4.3114540576934814 s
 # cnn duration:     17.572876930236816 s
+
+
+######## OPENCV
+
