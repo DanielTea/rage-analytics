@@ -1,10 +1,12 @@
 from statistics import mode
+import time
 
 import cv2
 from keras.models import load_model
 import numpy as np
 from time import sleep
 
+from realtime_VideoStreamer import VideoStreamer
 from Engine.utils.datasets import get_labels
 from Engine.utils.inference import detect_faces
 from Engine.utils.inference import draw_text
@@ -13,8 +15,6 @@ from Engine.utils.inference import apply_offsets
 from Engine.utils.inference import load_detection_model
 from Engine.utils.preprocessor import preprocess_input
 from Engine.utils.video_transformation import trim_frame
-from Engine.streaming_util.streaming_handler import create_new_streaming_file
-from Engine.streaming_util.streaming_handler import test_open_file
 
 # parameters for loading data and images
 detection_model_path = './Engine/trained_models/detection_models/haarcascade_frontalface_default.xml'
@@ -22,8 +22,7 @@ emotion_model_path = './Engine/trained_models/emotion_models/fer2013_mini_XCEPTI
 emotion_labels = get_labels('fer2013')
 
 # streaming Parameter
-stream_filename="stream0"
-stream_link="https://www.twitch.tv/moondye7"
+link="https://www.twitch.tv/destiny"
 
 # hyper-parameters for bounding boxes shape
 frame_window = 10
@@ -42,27 +41,19 @@ emotion_window = []
 # starting video streaming
 cv2.namedWindow('window_frame')
 
-create_new_streaming_file(stream_filename=stream_filename, stream_link=stream_link)
+vs = VideoStreamer(link, queueSize=256, resolution="720p")
 
-while test_open_file("./Engine/streaming_util/"+stream_filename+".ts", attempts=0, timeout=5000, sleep_int=5) != True:
-    print("stream not ready ")
 
-sleep(10)
-
-# ////////////////////////////////
-# ///capturing mp4///
-video_capture = cv2.VideoCapture('./Engine/streaming_util/'+stream_filename+'.ts')
-
-# ///////////////////////////////
-# ///capturing camera///
-# video_capture = cv2.VideoCapture(0)
 
 while True:
 
-    success, bgr_image = video_capture.read()
+    if vs.more():
 
-    if success:
-        bgr_image = trim_frame(bgr_image)
+        bgr_image = vs.read()
+
+        # sleep(1/30)
+
+        #bgr_image = trim_frame(bgr_image)
         gray_image = cv2.cvtColor(bgr_image, cv2.COLOR_BGR2GRAY)
         rgb_image = cv2.cvtColor(bgr_image, cv2.COLOR_BGR2RGB)
 
@@ -125,10 +116,10 @@ while True:
 
             bgr_image = cv2.cvtColor(rgb_image, cv2.COLOR_RGB2BGR)
             cv2.imshow('window_frame', bgr_image)
+
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 print("end")
                 break
-                
-        else:
-            print("error no frame")
-            continue
+
+    else:
+        continue

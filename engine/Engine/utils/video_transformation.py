@@ -31,7 +31,7 @@ def trim_frame(frame, v_trim=0.25, h_trim=0.15, fill_colour=[127, 127, 127]):
 # save to array
 # return an array of 3d numpy arrays
 
-def video_to_array(imagePath, captureRate = 1):
+def video_to_array(imagePath, captureRate = 5):
     # parameters
     # capture rate = capture every nth second
     # greyscale = whether the images should be turned into greyscale
