@@ -9,3 +9,4 @@ media/*
 *.DS_Store
 util/*.jpg
 emotion.txt
+sandbox.py

@@ -1,4 +1,4 @@
-var socket = io.connect('http://127.0.0.1:5000/');
+var socket = io.connect('http://192.168.0.101:8888/');
 
 const heartbeatTime = 3000;
 const overlayStyle = "rage-overlay-style-darker";
@@ -30,49 +30,168 @@ const overlayMessages = {"rage": [  "don't cry, NAME",
                                     "NAME rages",
                                     "NAME loses it"]};
 
-let currentUrl = window.location.href;
+const streamerSelection = "SELECTION";
+const streamerWatching = "WATCHING";
 
+let currentUrl = window.location.href;
+let intervalData;
+let intervalUrl;
 
 // tell the background script o start a new Session
-initSession();
+ let toDo = checkUrl();
+ toDo();
 
-
-socket.on('connect', function()
+window.addEventListener("load", function()
 {
-  addAnimationInit();
-  socket.emit('message', 'HELLO FROM EXTENSION JOOOOOOO');
+  // tell the background script o start a new Session
+  let toDo = checkUrl();
+  toDo();
+
 });
-
-// For getting getting and sending the data;
-setInterval( function()
-{
-  console.log("send data");
-  let streamerList = getData();
-  socket.emit('sendTopFiveStreamer', streamerList);
-  safeCurrentStreamers(streamerList);
-}, heartbeatTime);
-
-// for checking the current url -> twitch is react so i cant listen on load events
-setInterval( function()
-{
-  let url = window.location.href;
-  if (currentUrl != url)
-  {
-    let event = new CustomEvent('newUrl', {});
-    window.dispatchEvent(event);
-  }
-}, heartbeatTime);
 
 window.addEventListener("newUrl", function()
 {
   currentUrl = window.location.href;
-  checkUrl();
+  let toDo = checkUrl();
+  toDo();
+
 });
 
-window.addEventListener("load", function()
+
+function initEventsAndIntervalsSelection()
 {
-  checkUrl();
-});
+  clearInterval(intervalUrl);
+  clearInterval(intervalData);
+
+  // For getting getting and sending the data;
+  intervalData = setInterval( function()
+  {
+    let streamerList = getData();
+    console.log("send data " + streamerList);
+    socket.emit('sendStreamer', streamerList);
+    safeCurrentStreamers(streamerList);
+  }, heartbeatTime);
+
+  // for checking the current url -> twitch is react so i cant listen on load events
+  intervalUrl = setInterval( function()
+  {
+    let url = window.location.href;
+    if (currentUrl != url)
+    {
+      let event = new CustomEvent('newUrl', {});
+      window.dispatchEvent(event);
+    }
+  }, heartbeatTime);
+
+
+}
+
+function initEventsAndIntervalsWatching()
+{
+  clearInterval(intervalUrl);
+  clearInterval(intervalData);
+
+  // For getting getting and sending the data;
+  intervalData = setInterval( function()
+  {
+    getSafedStreamer();
+  }, heartbeatTime);
+
+  // for checking the current url -> twitch is react so i cant listen on load events
+  intervalUrl = setInterval( function()
+  {
+    let url = window.location.href;
+    if (currentUrl != url)
+    {
+      let event = new CustomEvent('newUrl', {});
+      window.dispatchEvent(event);
+    }
+  }, heartbeatTime);
+
+}
+
+function checkUrl()
+{
+  const stringForStreamerSelection = /^https:\/\/www\.twitch\.tv\/directory\/game\/[\w%']{3,}$/;
+  const stringForWatchingAStream = /^https:\/\/www\.twitch\.tv\/[\w%']{3,}$/;
+  const subdomainsToExculde = ["directory"]
+
+  const regExForStreamerSelection = new RegExp(stringForStreamerSelection);
+  const regExForWatchingAStream = new RegExp(stringForWatchingAStream);
+
+  if (regExForStreamerSelection.test(currentUrl))
+  {
+    return toDoSelection;
+  }
+  else
+  if (regExForWatchingAStream.test(currentUrl))
+  {
+    let splittedUrl = currentUrl.split("/");
+    let subdomain = splittedUrl[splittedUrl.length-1];
+
+    if (subdomainsToExculde.includes(subdomain))
+    {
+      return toDoNothing;
+    }
+    else
+    {
+        return toDoWatching;
+    }
+  }
+  else
+  {
+    return toDoNothing
+  }
+}
+
+function toDoSelection()
+{
+  console.log("STREAMER SELECTION");
+
+  initSession();
+  addAnimationInit();
+  initEventsAndIntervalsSelection();
+
+  socket.on('connect', function()
+  {
+    console.log("BITCHES");
+    socket.emit('message', 'HELLO FROM EXTENSION JOOOOOOO  SELCETION');
+  });
+}
+
+function toDoWatching()
+{
+  console.log("STREAMER WATCHING");
+
+  addAnimationInit();
+  initEventsAndIntervalsWatching();
+
+  socket.on('connect', function()
+  {
+    socket.emit('message', 'HELLO FROM EXTENSION JOOOOOOO WATCHING');
+  });
+}
+
+function toDoNothing()
+{
+  console.log("LAME! NOTHING TO DO");
+
+  clearInterval(intervalUrl);
+  clearInterval(intervalData);
+
+  // for checking the current url -> twitch is react so i cant listen on load events
+  intervalUrl = setInterval( function()
+  {
+    let url = window.location.href;
+    if (currentUrl != url)
+    {
+      let event = new CustomEvent('newUrl', {});
+      window.dispatchEvent(event);
+    }
+  }, heartbeatTime);
+
+  deredify();
+}
 
 function getData()
 {
@@ -204,29 +323,14 @@ function safeCurrentStreamers(streamerList)
   });
 }
 
-function checkUrl()
+function getSafedStreamer()
 {
-  const stringForStreamerSelection = /^https:\/\/www\.twitch\.tv\/directory\/game\/[\w%']{3,}$/;
-  const stringForWatchingAStream = /^https:\/\/www\.twitch\.tv\/[\w%']{3,}$/;
-
-  const regExForStreamerSelection = new RegExp(stringForStreamerSelection);
-  const regExForWatchingAStream = new RegExp(stringForWatchingAStream);
-
-  if (regExForStreamerSelection.test(currentUrl))
-  {
-    console.log("STREAMER SELECTION")
-  }
-  else
-  if (regExForWatchingAStream.test(currentUrl))
-  {
-    console.log("STREAMER WATCHING")
-  }
-  else
-  {
-      console.log("LAME!")
-  }
+  let message = {"type": "getStreamer", "sessionId": sessionId }
+  chrome.runtime.sendMessage(message, function(response) {
+      console.log("GOT FUCKING STREAMER FROM BG")
+      console.log(response);
+  });
 }
-
 
 // first para is the message, the sencond the callback which will be again in the scope of this content script
 // chrome.runtime.sendMessage({text: "hey"}, function(response) {

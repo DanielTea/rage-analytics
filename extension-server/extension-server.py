@@ -19,7 +19,7 @@ def handle_message(message):
 def handle_json(json):
     print('received json: ' + str(json))
 
-@socketio.on('sendTopFiveStreamer')
+@socketio.on('sendStreamer')
 def handle_top_five_streamer(arg1):
     print('received args: ' + str(arg1))
 
