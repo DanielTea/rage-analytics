@@ -22,6 +22,8 @@ def handle_json(json):
 @socketio.on('sendTopFiveStreamer')
 def handle_top_five_streamer(arg1):
     print('received args: ' + str(arg1))
+
+
     if (randint(0,10) > 3):
         print("rage")
         emit('rageIncoming', str(arg1[randint(0, 4)]))
