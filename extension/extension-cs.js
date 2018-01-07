@@ -1,4 +1,4 @@
-var socket = io.connect('http://127.0.0.1:8888/');
+var socket = io.connect('http://127.0.0.1:5000/');
 
 const heartbeatTime = 3000;
 const overlayStyle = "rage-overlay-style-darker";
@@ -64,9 +64,10 @@ function initEventsAndIntervalsSelection()
   clearInterval(intervalData);
 
   // For getting getting and sending the data;
-  intervalData = setInterval( function()
+  intervalData = setTimeout( function()
   {
     let streamerList = getData();
+
     console.log("send data " + streamerList);
     socket.emit('sendStreamer', streamerList);
     safeCurrentStreamers(streamerList);
@@ -154,8 +155,12 @@ function toDoSelection()
 
   socket.on('connect', function()
   {
-    console.log("BITCHES");
     socket.emit('message', 'HELLO FROM EXTENSION JOOOOOOO  SELCETION');
+  });
+
+   socket.on('disconnect', function()
+  {
+    console.log("BITCHES");
   });
 }
 
@@ -220,6 +225,8 @@ function deredify()
   selectorsAndClasses.forEach(item => removeClassToList( S(item.selector) , item.className ));
 
 }
+
+socket.on("test", function(msg) {console.log(msg)});
 
 socket.on("rageIncoming", function(msg)
 {
