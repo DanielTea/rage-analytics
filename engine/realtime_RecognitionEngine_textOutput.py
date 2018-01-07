@@ -12,9 +12,9 @@ from Engine.utils.inference import load_detection_model
 from Engine.utils.preprocessor import preprocess_input
 
 class RecognitionEngine:
-    def __init__(self, VideoStreamer, emotion_classifier, graph, queueSize=128, use_gpu=False, gpu_number=0):
+    def __init__(self, VideoStreamer_list, emotion_classifier, graph, queueSize=128, use_gpu=False, gpu_number=0):
 
-        self.VideoStreamer = VideoStreamer
+        self.VideoStreamer_list = VideoStreamer_list
         # parameters for loading data and images
 
         # TODO implement gpu capability
@@ -53,43 +53,45 @@ class RecognitionEngine:
 
         while True:
 
-            if self.VideoStreamer.more():
+            for element in self.VideoStreamer_list:
 
-                bgr_image = self.VideoStreamer.read()
+                if element[1].more():
 
-                # sleep(1/30)
+                    bgr_image = element[1].read()
 
-                # bgr_image = trim_frame(bgr_image)
-                gray_image = cv2.cvtColor(bgr_image, cv2.COLOR_BGR2GRAY)
+                    # sleep(1/30)
 
-                faces = detect_faces(face_detection, gray_image)
-                # print(str(faces))
+                    # bgr_image = trim_frame(bgr_image)
+                    gray_image = cv2.cvtColor(bgr_image, cv2.COLOR_BGR2GRAY)
 
-                for face_coordinates in faces:
+                    faces = detect_faces(face_detection, gray_image)
+                    # print(str(faces))
 
-                    x1, x2, y1, y2 = apply_offsets(face_coordinates, emotion_offsets)
-                    gray_face = gray_image[y1:y2, x1:x2]
-                    try:
-                        gray_face = cv2.resize(gray_face, (self.emotion_target_size))
-                    except:
-                        continue
+                    for face_coordinates in faces:
 
-                    gray_face = preprocess_input(gray_face, True)
-                    gray_face = np.expand_dims(gray_face, 0)
-                    gray_face = np.expand_dims(gray_face, -1)
+                        x1, x2, y1, y2 = apply_offsets(face_coordinates, emotion_offsets)
+                        gray_face = gray_image[y1:y2, x1:x2]
+                        try:
+                            gray_face = cv2.resize(gray_face, (self.emotion_target_size))
+                        except:
+                            continue
 
-                    with self.graph.as_default():
-                        emotion_prediction = self.emotion_classifier.predict(gray_face)
+                        gray_face = preprocess_input(gray_face, True)
+                        gray_face = np.expand_dims(gray_face, 0)
+                        gray_face = np.expand_dims(gray_face, -1)
 
-                    emotion_label_arg = np.argmax(emotion_prediction)
-                    emotion_text = emotion_labels[emotion_label_arg]
+                        with self.graph.as_default():
+                            emotion_prediction = self.emotion_classifier.predict(gray_face)
 
-                    if not self.Q.full():
-                        self.Q.put(emotion_text)
-                    else:
-                        continue
-            else:
-                continue
+                        emotion_label_arg = np.argmax(emotion_prediction)
+                        emotion_text = emotion_labels[emotion_label_arg]
+
+                        if not self.Q.full():
+                            self.Q.put([element[0], emotion_text])
+                        else:
+                            continue
+                else:
+                    continue
 
     def read(self):
         # return next frame in the queue

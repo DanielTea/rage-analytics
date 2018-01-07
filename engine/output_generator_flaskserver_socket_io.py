@@ -2,9 +2,14 @@ from flask import stream_with_context, request, Response, Flask
 from realtime_VideoStreamer import VideoStreamer
 from realtime_RecognitionEngine_textOutput import RecognitionEngine
 from keras.models import load_model
+from flask_socketio import SocketIO, emit
+
+
 import tensorflow as tf
 
 app = Flask(__name__)
+socketio = SocketIO(app)
+
 
 #EXAMPLE LINK:
 # http://0.0.0.0:8888/stream?links=https://www.twitch.tv/a541021,https://www.twitch.tv/lostaiming,https://www.twitch.tv/fps_shaka,https://www.twitch.tv/cawai0147&resolution=360p
@@ -14,8 +19,13 @@ streamer_list = []
 # r_engine = RecognitionEngine(streamer_list,  emotion_classifier, graph, queueSize=128)
 
 
-@app.route('/stream')
-def streamed_response():
+# @socketio.on('my event', namespace='/test')
+# def test_message(message):
+#     emit('my response', {'data': message['data']})
+
+
+@socketio.on('connect', namespace='/stream')
+def stream_connect():
     emotion_model_path = './Engine/trained_models/emotion_models/fer2013_mini_XCEPTION.102-0.66.hdf5'
     emotion_classifier = load_model(emotion_model_path, compile=False)
     emotion_classifier._make_predict_function()
@@ -25,7 +35,7 @@ def streamed_response():
     resolution = request.args.get('resolution', '')
 
     link_list = links.split(',')
-    print("links: "+ str(link_list))
+    print("links: " + str(link_list))
 
     video_streamer_list = []
 
@@ -43,15 +53,19 @@ def streamed_response():
             if r_engine.more():
 
                 element = r_engine.read()
-                text = "["+str(element[0]) + "," + str(element[1])+"]"
+                text = "[" + str(element[0]) + "," + str(element[1]) + "]"
                 print(text)
 
-                yield text+","
+                yield text + ","
 
             else:
                 continue
 
     return Response(stream_with_context(generate()))
+
+@socketio.on('disconnect', namespace='/stream')
+def test_disconnect():
+    print('Client disconnected')
 
 
 if __name__ == '__main__':
