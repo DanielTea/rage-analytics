@@ -16,3 +16,4 @@ engine/Engine/__pycache__/
 engine/Engine/streaming_util/__pycache__/
 engine/Engine/utils/__pycache__/
 .mp4
+/engine/__pycache__/
