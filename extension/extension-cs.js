@@ -1,4 +1,4 @@
-var socket = io.connect('http://192.168.0.101:8888/');
+var socket = io.connect('http://127.0.0.1:8888/');
 
 const heartbeatTime = 3000;
 const overlayStyle = "rage-overlay-style-darker";
@@ -224,6 +224,7 @@ function deredify()
 socket.on("rageIncoming", function(msg)
 {
   let old = getData();
+  console.log(msg)
 
   old.forEach( function(item)
   {
