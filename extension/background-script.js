@@ -11,18 +11,25 @@ chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse)
     if (msg.type == "initSession")
     {
       initSession(msg);
+      sendResponse("Gotcha! " + msg.type);
     }
     else
     if (msg.type == "updateStreamer")
     {
       updateStreamer(msg);
+      sendResponse("Gotcha! " + msg.type);
+    }
+    else
+    if (msg.type == "getStreamer")
+    {
+      sendResponse(currentStreamer);
     }
     else
     {
         console.log("SOMETHING FUUUUUNKY");
         console.log(msg);
     }
-    sendResponse("Gotcha! " + msg.type);
+
 });
 
 function initSession(msg)
