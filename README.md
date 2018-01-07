@@ -12,3 +12,15 @@
 - upload the `extension` folder from this repo
 
 ### AI-Server
+
+The AI-Server is located in the `engine` subfolder. The relevant files are:
+
+```
+engine/realtime_VideoStreamer.py
+engine/realtime_RecognitionEngine.py
+engine/output_generator_flaskserver.py
+engine/video_realtime.py
+engine/realtime_VideoStreamer.py
+```
+
+- 
