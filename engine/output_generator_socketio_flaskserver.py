@@ -1,8 +1,8 @@
 import tensorflow as tf
 from flask import stream_with_context, request, Response, Flask
 from flask_socketio import SocketIO, send, emit
-from realtime_VideoStreamer import VideoStreamer
-from realtime_RecognitionEngine_textOutput import RecognitionEngine
+from engine.realtime_VideoStreamer import VideoStreamer
+from engine.realtime_RecognitionEngine_textOutput import RecognitionEngine
 from keras.models import load_model
 from engine.realtime_VideoStreamer import VideoStreamer
 
@@ -14,7 +14,7 @@ emotion_classifier._make_predict_function()
 graph = tf.get_default_graph()
 
 app = Flask(__name__)
-socketio = SocketIO(app)
+socketio = SocketIO(app, async_mode="threading")
 
 #EXAMPLE LINK:
 # http://0.0.0.0:8888/stream?links=https://www.twitch.tv/a541021,https://www.twitch.tv/lostaiming,https://www.twitch.tv/fps_shaka,https://www.twitch.tv/cawai0147&resolution=360p
@@ -32,8 +32,15 @@ def handle_connect():
 def handle_disconnect():
     print("disconnected")
 
-@socketio.on('sendStreamer')
+@socketio.on('sendStreamer', namespace='/stream')
 def handle_top_five_streamer(arg1):
+
+    emotion_model_path = './Engine/trained_models/emotion_models/fer2013_mini_XCEPTION.102-0.66.hdf5'
+    emotion_classifier = load_model(emotion_model_path, compile=False)
+    emotion_classifier._make_predict_function()
+    graph = tf.get_default_graph()
+
+
     print('received args: ' + str(arg1))
     emit("test", "test1")
 
