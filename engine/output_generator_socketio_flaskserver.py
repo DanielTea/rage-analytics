@@ -8,10 +8,10 @@ from engine.realtime_VideoStreamer import VideoStreamer
 
 from engine.realtime_RecognitionEngine_textOutput_v2_copy import RecognitionEngine
 
-emotion_model_path = './Engine/trained_models/emotion_models/fer2013_mini_XCEPTION.102-0.66.hdf5'
-emotion_classifier = load_model(emotion_model_path, compile=False)
-emotion_classifier._make_predict_function()
-graph = tf.get_default_graph()
+# emotion_model_path = './Engine/trained_models/emotion_models/fer2013_mini_XCEPTION.102-0.66.hdf5'
+# emotion_classifier = load_model(emotion_model_path, compile=False)
+# emotion_classifier._make_predict_function()
+# graph = tf.get_default_graph()
 
 app = Flask(__name__)
 socketio = SocketIO(app, async_mode="threading")
@@ -35,6 +35,7 @@ def handle_disconnect():
 @socketio.on('sendStreamer', namespace='/stream')
 def handle_top_five_streamer(arg1):
 
+    tf.reset_default_graph()
     emotion_model_path = './Engine/trained_models/emotion_models/fer2013_mini_XCEPTION.102-0.66.hdf5'
     emotion_classifier = load_model(emotion_model_path, compile=False)
     emotion_classifier._make_predict_function()
@@ -42,7 +43,7 @@ def handle_top_five_streamer(arg1):
 
 
     print('received args: ' + str(arg1))
-    emit("test", "test1")
+    # emit("test", "test1")
 
     link_list = arg1
     resolution = '360p'
@@ -55,17 +56,18 @@ def handle_top_five_streamer(arg1):
         video_streamer_list.append([link, vs])
 
     r_engine = RecognitionEngine(video_streamer_list, emotion_classifier, graph, queueSize=128)
-    emit('test',"test2")
+    # emit('test',"test2")
     while True:
 
         if r_engine.more():
 
             element = r_engine.read()
-            # text = "[" + str(element[0]) + "," + str(element[1]) + "]"
-            # print(text)
+            text = "[" + str(element[0]) + "," + str(element[1]) + "]"
+            print(text)
             emit('rageIncoming', {'link': str(element[0]), 'confidence': str(element[1])})
 
         else:
+            # emit('rageIncoming', {'link': "%no-rage", 'confidence': "0"})
             continue
 
 if __name__ == '__main__':

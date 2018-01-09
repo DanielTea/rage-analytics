@@ -64,7 +64,7 @@ class emitData(Thread):
             if r_engine.more():
 
                 element = r_engine.read()
-                text = "[" + str(element[0]) + "," + str(element[1]) + "]"
+                text = str(element[0])
                 print(text)
                 socketio.emit('rageIncoming', {'link': str(element[0]), 'confidence': str(element[1])},
                               namespace='/stream')

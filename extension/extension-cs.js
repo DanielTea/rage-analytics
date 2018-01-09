@@ -240,17 +240,18 @@ socket.on("rageIncoming", function(msg)
 
   unshowRage();
 
-  if (msg == "%no-rage")
-  {
-    deredify();
-    console.log("NO RAGE");
-  }
-  else
-  {
+  // if (msg.link == "%no-rage")
+  // {
+  //   deredify();
+  //   console.log("NO RAGE");
+  // }
+  // else
+  // {
     redify();
-    showRage(msg);
+    showRage(msg.link);
     console.log("RAGE RAGE BABY");
-  }
+    // unshowRage();
+  // }
 });
 
 function showRage(msg)
