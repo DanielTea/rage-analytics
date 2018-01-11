@@ -67,10 +67,7 @@ function initEventsAndIntervalsSelection()
   intervalData = setTimeout( function()
   {
     let streamerList = getStreamerData();
-    console.log(streamerList);
     let streamerNameList = streamerList.map(streamer => streamer.name)
-    console.log(streamerNameList);
-    //example: ["/shantao", "/summonersinnlive", "/gurke4life", "/players_hub", "/sallicex"]
 
     console.log("send data " + streamerNameList);
     socket.emit('sendStreamer', streamerNameList);
@@ -217,63 +214,27 @@ function getData()
 function getStreamerData()
 {
   let list = S(".tw-card");
-  console.log("getrStreamerData list:", list);
-
   let fiveFirst = list.slice(0,numberOfConcurrentStreamers);
-  console.log("getrStreamerData 5first:", fiveFirst);
 
   let data = [];
   fiveFirst.forEach(item => data.push(createStreamerData(item)));
-  console.log(data);
 
   return data;
 }
 
 function createStreamerData(elem)
 {
-  console.log(elem)
-
-  /*
-  <div class="tw-card tw-relative">
-     <div class="tw-flex tw-flex-column tw-flex-nowrap">
-        <div class="tw-full-width ">
-           <figure class="tw-aspect tw-aspect--overflow tw-aspect--16x9 tw-aspect--align-top">
-              <div>
-!                 <a title="[GER] Teemo Clizckbait Dia 4 MMR Wuhu Yeah Lol Yeah" data-a-target="live-channel-card-thumbnail-link" href="/shantao">
-                    <div class="tw-card-img tw-flex-shrink-0">
-                       <figure class="tw-aspect tw-aspect--16x9 tw-aspect--align-top"><img src="https://static-cdn.jtvnw.net/previews-ttv/live_user_shantao-320x180.jpg" alt="shantao cover image"></figure>
-                    </div>
-                    <div class="rage-overlay rage-overlay-style-darker" id="rage-overlay-shantao"></div>
-                    <span class="rage-overlay-text rage-font-4 shake">too bad,  shantao</span>
-                 </a>
-              </div>
-           </figure>
-        </div>
-        <div class="tw-card-body tw-relative">
-           <a class="live-channel-card__channel" data-a-target="live-channel-card-title-link" href="/shantao">
-              <h3 class="live-channel-card__title tw-mg-t-05 tw-ellipsis tw-font-size-5 tw-line-height-body" title="[GER] Teemo Clickbait Dia 4 MMR Wuhu Yeah Lol Yeah">[GER] Teemo Clickbait Dia 4 MMR Wuhu Yeah Lol Yeah</h3>
-           </a>
-           <div class="live-channel-card__meta tw-flex tw-flex-nowrap">
-              <span class="tw-ellipsis">
-                 <a class="live-channel-card__videos" data-a-target="live-channel-card-channel-name-link" href="/shantao/videos">Shantao</a><!-- react-text: 1813 --> hat 1.095 Zuschauer<!-- /react-text -->
-              </span>
-           </div>
-        </div>
-     </div>
-  </div>
-   */
-  console.log(elem)
   let aTag = elem.firstChild.firstChild.firstChild.firstChild.firstChild;
   let streamerName = aTag.href.replace("https://www.twitch.tv", "");
 
-  let example = { "name" : streamerName,
-                  "title" : aTag.title,
-                  "img" : "https://static-cdn.jtvnw.net/previews-ttv/live_user_" + streamerName.substr(1) + "-320x180.jpg"
-  }
+  let newStreamer = { "name" : streamerName,
+                      "title" : aTag.title,
+                      "img" : "https://static-cdn.jtvnw.net/previews-ttv/live_user_" + streamerName.substr(1) + "-320x180.jpg"
+  };
 
-  console.log("new Streamer Object:", example);
+  console.log("new Streamer tracked:", newStreamer);
 
-  return example
+  return newStreamer
 }
 
 function addAnimationInit()
