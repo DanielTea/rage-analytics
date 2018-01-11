@@ -66,11 +66,12 @@ function initEventsAndIntervalsSelection()
   // For getting getting and sending the data;
   intervalData = setTimeout( function()
   {
-    let streamerList = getData();
+    let streamerList = getStreamerData();
+    let streamerNameList = streamerList.map(streamer => streamer.name)
 
-    console.log("send data " + streamerList);
-    socket.emit('sendStreamer', streamerList);
-    safeCurrentStreamers(streamerList);
+    console.log("send data " + streamerNameList);
+    socket.emit('sendStreamer', streamerNameList);
+    saveCurrentStreamers(streamerList);
   }, heartbeatTime);
 
   // for checking the current url -> twitch is react so i cant listen on load events
@@ -95,7 +96,7 @@ function initEventsAndIntervalsWatching()
   // For getting getting and sending the data;
   intervalData = setInterval( function()
   {
-    getSafedStreamer();
+    getSavedStreamer();
   }, heartbeatTime);
 
   // for checking the current url -> twitch is react so i cant listen on load events
@@ -210,11 +211,38 @@ function getData()
   return data;
 }
 
+function getStreamerData()
+{
+  let list = S(".tw-card");
+  let fiveFirst = list.slice(0,numberOfConcurrentStreamers);
+
+  let data = [];
+  fiveFirst.forEach(item => data.push(createStreamerData(item)));
+
+  return data;
+}
+
+function createStreamerData(elem)
+{
+  let aTag = elem.firstChild.firstChild.firstChild.firstChild.firstChild;
+  let streamerName = aTag.href.replace("https://www.twitch.tv", "");
+
+  let newStreamer = { "name" : streamerName,
+                      "title" : aTag.title,
+                      "img" : "https://static-cdn.jtvnw.net/previews-ttv/live_user_" + streamerName.substr(1) + "-320x180.jpg"
+  };
+
+  console.log("new Streamer tracked:", newStreamer);
+
+  return newStreamer
+}
+
 function addAnimationInit()
 {
   let selector = ".top-nav__menu, .tw-button, .top-nav__nav-link, .tw-button__text, .directory-header__link, .tw-button--hollow, .directory-tabs__item";
   addClassToList( S(selector) , "rage-animation-init" );
 }
+
 function redify()
 {
   selectorsAndClasses.forEach(item => addClassToList( S(item.selector) , item.className ));
@@ -320,7 +348,7 @@ function initSession()
   });
 }
 
-function safeCurrentStreamers(streamerList)
+function saveCurrentStreamers(streamerList)
 {
   let message = {"type": "updateStreamer", "data": streamerList, "sessionId": sessionId }
   chrome.runtime.sendMessage(message, function(response) {
@@ -328,7 +356,7 @@ function safeCurrentStreamers(streamerList)
   });
 }
 
-function getSafedStreamer()
+function getSavedStreamer()
 {
   let message = {"type": "getStreamer", "sessionId": sessionId }
   chrome.runtime.sendMessage(message, function(response) {
