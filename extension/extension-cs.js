@@ -64,9 +64,10 @@ function initEventsAndIntervalsSelection()
   clearInterval(intervalData);
 
   // For getting getting and sending the data;
-  intervalData = setInterval( function()
+  intervalData = setTimeout( function()
   {
     let streamerList = getData();
+
     console.log("send data " + streamerList);
     socket.emit('sendStreamer', streamerList);
     safeCurrentStreamers(streamerList);
@@ -154,8 +155,12 @@ function toDoSelection()
 
   socket.on('connect', function()
   {
-    console.log("BITCHES");
     socket.emit('message', 'HELLO FROM EXTENSION JOOOOOOO  SELCETION');
+  });
+
+   socket.on('disconnect', function()
+  {
+    console.log("BITCHES");
   });
 }
 
@@ -221,6 +226,8 @@ function deredify()
 
 }
 
+socket.on("test", function(msg) {console.log(msg)});
+
 socket.on("rageIncoming", function(msg)
 {
   let old = getData();
@@ -233,17 +240,18 @@ socket.on("rageIncoming", function(msg)
 
   unshowRage();
 
-  if (msg == "%no-rage")
-  {
-    deredify();
-    console.log("NO RAGE");
-  }
-  else
-  {
+  // if (msg.link == "%no-rage")
+  // {
+  //   deredify();
+  //   console.log("NO RAGE");
+  // }
+  // else
+  // {
     redify();
-    showRage(msg);
+    showRage(msg.link);
     console.log("RAGE RAGE BABY");
-  }
+    // unshowRage();
+  // }
 });
 
 function showRage(msg)

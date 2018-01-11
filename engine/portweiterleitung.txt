@@ -1,0 +1,1 @@
+ssh -L 8888:localhost:8888 dt024@deepthought.mi.hdm-stuttgart.de
