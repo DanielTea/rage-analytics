@@ -231,7 +231,6 @@ socket.on("test", function(msg) {console.log(msg)});
 socket.on("rageIncoming", function(msg)
 {
   let old = getData();
-  console.log(msg)
 
   old.forEach( function(item)
   {
@@ -240,24 +239,21 @@ socket.on("rageIncoming", function(msg)
 
   unshowRage();
 
-  // if (msg.link == "%no-rage")
-  // {
-  //   deredify();
-  //   console.log("NO RAGE");
-  // }
-  // else
-  // {
+  if (msg == "%no-rage")
+  {
+    deredify();
+    console.log("NO RAGE");
+  }
+  else
+  {
     redify();
-    showRage(msg.link);
+    showRage(msg);
     console.log("RAGE RAGE BABY");
-    // unshowRage();
-  // }
+  }
 });
 
 function showRage(msg)
 {
-  console.log(msg);
-
   let streamerName = msg.split("/")[1];
   let rageItem = document.querySelector("a[data-a-target='live-channel-card-thumbnail-link'][href='" + msg + "']");
 
@@ -266,7 +262,7 @@ function showRage(msg)
 
   setTimeout(function() {
     overlayDiv.classList.add(overlayStyle);
-  }, 0)
+  }, 0);
 
   overlayDiv.setAttribute("id", "rage-overlay-" + streamerName);
 
