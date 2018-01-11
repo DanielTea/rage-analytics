@@ -71,7 +71,7 @@ function initEventsAndIntervalsSelection()
 
     console.log("send data " + streamerNameList);
     socket.emit('sendStreamer', streamerNameList);
-    //saveCurrentStreamers(streamerList);
+    saveCurrentStreamers(streamerList);
   }, heartbeatTime);
 
   // for checking the current url -> twitch is react so i cant listen on load events
