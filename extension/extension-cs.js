@@ -237,6 +237,19 @@ function createStreamerData(elem)
   return newStreamer
 }
 
+
+function showRageNotification(streamer)
+{
+  var notification = new Notification('Rage incoming!', {
+    icon: streamer.img,
+    body: streamer.name.substr(1) + " is raging! Check it out here",
+  });
+
+  notification.onclick = function () {
+    window.open("https://www.twitch.tv" + streamerName);
+  };
+}
+
 function addAnimationInit()
 {
   let selector = ".top-nav__menu, .tw-button, .top-nav__nav-link, .tw-button__text, .directory-header__link, .tw-button--hollow, .directory-tabs__item";
