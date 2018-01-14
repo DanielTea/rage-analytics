@@ -5,6 +5,7 @@ from engine.realtime_VideoStreamer import VideoStreamer
 from engine.realtime_RecognitionEngine_textOutput import RecognitionEngine
 from keras.models import load_model
 from engine.realtime_VideoStreamer import VideoStreamer
+from keras import backend as K
 
 from engine.realtime_RecognitionEngine_textOutput_v2_copy import RecognitionEngine
 
@@ -14,7 +15,7 @@ from engine.realtime_RecognitionEngine_textOutput_v2_copy import RecognitionEngi
 # graph = tf.get_default_graph()
 
 app = Flask(__name__)
-socketio = SocketIO(app, async_mode="threading")
+socketio = SocketIO(app, async_mode="threading", ping_timeout=10000)
 
 #EXAMPLE LINK:
 # http://0.0.0.0:8888/stream?links=https://www.twitch.tv/a541021,https://www.twitch.tv/lostaiming,https://www.twitch.tv/fps_shaka,https://www.twitch.tv/cawai0147&resolution=360p
@@ -30,16 +31,21 @@ def handle_connect():
 
 @socketio.on('disconnect')
 def handle_disconnect():
+    K.clear_session()
     print("disconnected")
 
 @socketio.on('sendStreamer', namespace='/stream')
 def handle_top_five_streamer(arg1):
+
+    K.clear_session()
+    emit('session_clean', 'clean')
 
     tf.reset_default_graph()
     emotion_model_path = './Engine/trained_models/emotion_models/fer2013_mini_XCEPTION.102-0.66.hdf5'
     emotion_classifier = load_model(emotion_model_path, compile=False)
     emotion_classifier._make_predict_function()
     graph = tf.get_default_graph()
+    emit('network_created', 'created_network')
 
 
     print('received args: ' + str(arg1))
@@ -67,7 +73,7 @@ def handle_top_five_streamer(arg1):
             emit('rageIncoming', {'link': str(element[0]), 'confidence': str(element[1])})
 
         else:
-            # emit('rageIncoming', {'link': "%no-rage", 'confidence': "0"})
+            # emit('heart', {'link': "%no-rage", 'confidence': "0"})
             continue
 
 if __name__ == '__main__':
