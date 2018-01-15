@@ -325,7 +325,6 @@ function removeCustomNotification(streamerName) {
 }
 
 
-
 function addAnimationInit()
 {
   let selector = ".top-nav__menu, .tw-button, .top-nav__nav-link, .tw-button__text, .directory-header__link, .tw-button--hollow, .directory-tabs__item";
