@@ -1,3 +1,7 @@
+import os
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"   # see issue #152
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+
 import tensorflow as tf
 from flask import stream_with_context, request, Response, Flask
 from flask_socketio import SocketIO, send, emit
@@ -38,6 +42,11 @@ def handle_analyse(arg1):
 
 @socketio.on('sendStreamer', namespace='/stream')
 def handle_top_five_streamer(arg1):
+    print("")
+    print("")
+    print('received args: ' + str(arg1))
+    print("")
+    print("")
 
     K.clear_session()
     emit('sessionStatus', '0') # deleted network
@@ -51,7 +60,6 @@ def handle_top_five_streamer(arg1):
     emit('sessionStatus', '1')  # created Network
 
 
-    print('received args: ' + str(arg1))
 
     link_list = arg1
     resolution = '360p'
