@@ -1,13 +1,18 @@
+import os
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"   # see issue #152
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+
 import tensorflow as tf
 from flask import stream_with_context, request, Response, Flask
 from flask_socketio import SocketIO, send, emit
-from engine.realtime_VideoStreamer import VideoStreamer
-from engine.realtime_RecognitionEngine_textOutput import RecognitionEngine
+from realtime_VideoStreamer import VideoStreamer
+from realtime_RecognitionEngine_textOutput import RecognitionEngine
 from keras.models import load_model
-from engine.realtime_VideoStreamer import VideoStreamer
+from realtime_VideoStreamer import VideoStreamer
 from keras import backend as K
 
-from engine.realtime_RecognitionEngine_textOutput_v2_copy import RecognitionEngine
+from realtime_RecognitionEngine_textOutput_v2_copy import RecognitionEngine
+import multiprocessing.dummy as mp
 
 # emotion_model_path = './Engine/trained_models/emotion_models/fer2013_mini_XCEPTION.102-0.66.hdf5'
 # emotion_classifier = load_model(emotion_model_path, compile=False)
@@ -38,6 +43,11 @@ def handle_analyse(arg1):
 
 @socketio.on('sendStreamer', namespace='/stream')
 def handle_top_five_streamer(arg1):
+    print("")
+    print("")
+    print('received args: ' + str(arg1))
+    print("")
+    print("")
 
     K.clear_session()
     emit('sessionStatus', '0') # deleted network
@@ -50,18 +60,24 @@ def handle_top_five_streamer(arg1):
 
     emit('sessionStatus', '1')  # created Network
 
-
-    print('received args: ' + str(arg1))
-
     link_list = arg1
     resolution = '360p'
 
 
     video_streamer_list = []
 
-    for link in link_list:
-        vs = VideoStreamer("https://www.twitch.tv"+str(link), queueSize=128, resolution=resolution, n_frame=15)
-        video_streamer_list.append([link, vs])
+    def get_video(link):
+         vs = VideoStreamer("https://www.twitch.tv"+str(link), queueSize=128, resolution=resolution, n_frame=15)
+         video_streamer_list.append([link, vs])
+
+    p = mp.Pool(len(link_list))
+    p.map(get_video, link_list)
+    p.close()
+    p.join()
+
+#    for link in link_list:
+ #       vs = VideoStreamer("https://www.twitch.tv"+str(link), queueSize=128, resolution=resolution, n_frame=15)
+  #      video_streamer_list.append([link, vs])
 
     r_engine = RecognitionEngine(video_streamer_list, emotion_classifier, graph, queueSize=128)
 

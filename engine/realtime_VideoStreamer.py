@@ -36,7 +36,7 @@ class VideoStreamer:
 
         self.stream_url = stream.url
 
-        self.pipe = sp.Popen(['ffmpeg', "-i", self.stream_url,
+        self.pipe = sp.Popen(['/home/sd092/ffmpeg-git-20180111-32bit-static/ffmpeg', "-i", self.stream_url,
                          "-loglevel", "quiet",  # no text output
                          "-an",  # disable audio
                          "-f", "image2pipe",

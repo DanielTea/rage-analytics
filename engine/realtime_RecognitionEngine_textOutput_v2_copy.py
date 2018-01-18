@@ -5,11 +5,11 @@ import cv2
 import numpy as np
 import tensorflow as tf
 
-from engine.Engine.utils.datasets import get_labels
-from engine.Engine.utils.inference import detect_faces
-from engine.Engine.utils.inference import apply_offsets
-from engine.Engine.utils.inference import load_detection_model
-from engine.Engine.utils.preprocessor import preprocess_input
+from Engine.utils.datasets import get_labels
+from Engine.utils.inference import detect_faces
+from Engine.utils.inference import apply_offsets
+from Engine.utils.inference import load_detection_model
+from Engine.utils.preprocessor import preprocess_input
 
 class RecognitionEngine:
     def __init__(self, VideoStreamer_list, emotion_classifier, graph, queueSize=128, use_gpu=False, gpu_number=0):
