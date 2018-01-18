@@ -250,6 +250,36 @@ function showRageNotification(streamer)
   };
 }
 
+function createCustomNotification(streamer) {
+
+    let notification = document.createElement("div");
+    notification.className = "notification-box";
+    notification.id = "notification_" + streamer.name;
+
+    // ---- Top Bar ----
+
+    let topBar = document.createElement("div");
+    topBar.className = "notification-box__top-bar";
+
+    let title = document.createElement("span");
+    title.className = "notification-box__top-bar";
+    title.innerHTML = streamer.title;
+
+    let xButton = document.createElement("span");
+    xButton.className = "x-button";
+
+    let buttonSvg = document.createElement("svg");
+    buttonSvg.className = "button-svg";
+    buttonSvg.setAttribute("width", "18px");
+    buttonSvg.setAttribute("height", "18px");
+    buttonSvg.setAttribute("version", "1.1");
+    buttonSvg.setAttribute("viewBox", "0 0 16 16");
+
+    let pathElement = document.createElement("")
+
+    // ---- Body ----
+
+}
 
 /*
 
@@ -257,7 +287,9 @@ HTML EXAMPLE
 
 <link href="https://fonts.googleapis.com/css?family=Permanent+Marker" rel="stylesheet">
 
-<div class="notification-box">
+<div
+     class="notification-box"
+     id="notification_xoynuzi">
   <div class="notification-box__top-bar">
    <span class="notification-box__top-bar__title">
      Kraaaaaaaankes league Gameplay + Stoooryyytime!! :D | neues YouTube Video incoming | !instagram MAIN !prowerden !baron !YouTube !merch
@@ -267,7 +299,8 @@ HTML EXAMPLE
            width="18px"
            height="18px"
            version="1.1"
-           viewBox="0 0 16 16">
+           viewBox="0 0 16 16"
+           onclick=removeNotification("xoynuzi")>
         <path d="M8 6.586L3.757 2.343 2.343 3.757 6.586 8l-4.243 4.243 1.414 1.414L8 9.414l4.243 4.243 1.414-1.414L9.414 8l4.243-4.243-1.414-1.414"
               fill-rule="evenodd">
         </path>
