@@ -241,7 +241,7 @@ function createStreamerData(elem)
 
 function showRageNotification(streamer)
 {
-  var notification = new Notification('Rage incoming!', {
+  let notification = new Notification('Rage incoming!', {
     icon: streamer.img,
     body: streamer.name.substr(1) + " is raging! Check it out here",
   });
@@ -249,6 +249,11 @@ function showRageNotification(streamer)
   notification.onclick = function () {
     window.open("https://www.twitch.tv" + streamerName);
   };
+}
+
+function showCustomNotification(streamer) {
+    let infoBar = document.getElementsByClassName("channel-info-bar");
+    infoBar.appendChild(createStreamerData())
 }
 
 function createCustomNotification(streamer) {
@@ -274,7 +279,7 @@ function createCustomNotification(streamer) {
                height="18px" 
                version="1.1" 
                viewBox="0 0 16 16"
-               onclick=removeNotification("xoynuzi")>
+               onclick=removeCustomNotification(` + streamer.name +`)>
             <path d="M8 6.586L3.757 2.343 2.343 3.757 6.586 8l-4.243 4.243 1.414 1.414L8 9.414l4.243 4.243 1.414-1.414L9.414 8l4.243-4.243-1.414-1.414" 
                   fill-rule="evenodd">       
             </path>
@@ -314,45 +319,11 @@ function createCustomNotification(streamer) {
 
 }
 
-/*
+function removeCustomNotification(streamerName) {
+   document.getElementById("notification_" + streamerName).remove();
+  alert("removed element " + streamerName )
+}
 
-HTML EXAMPLE
-
-<link href="https://fonts.googleapis.com/css?family=Permanent+Marker" rel="stylesheet">
-
-<div
-     class="notification-box"
-     id="notification_xoynuzi">
-  <div class="notification-box__top-bar">
-   <span class="notification-box__top-bar__title">
-     Kraaaaaaaankes league Gameplay + Stoooryyytime!! :D | neues YouTube Video incoming | !instagram MAIN !prowerden !baron !YouTube !merch
-   </span>
-   <span class="x-button">
-      <svg class="button-svg"
-           width="18px"
-           height="18px"
-           version="1.1"
-           viewBox="0 0 16 16"
-           onclick=removeNotification("xoynuzi")>
-        <path d="M8 6.586L3.757 2.343 2.343 3.757 6.586 8l-4.243 4.243 1.414 1.414L8 9.414l4.243 4.243 1.414-1.414L9.414 8l4.243-4.243-1.414-1.414"
-              fill-rule="evenodd">
-        </path>
-      </svg>
-   </span>
-  </div>
-  <div class="notification-box__body">
-      <div class="notification-box__overlay"></div>
-      <img class="notification-box__image" src="https://static-cdn.jtvnw.net/previews-ttv/live_user_xoynuzi-320x180.jpg" alt="" width="70px">
-      <div class="notification-box__overlay">
-
-      </div>
-      <span class="notification-box__rage">RAGE!</span>
-  </div>
-
-
-</div>
-
-*/
 
 
 function addAnimationInit()
