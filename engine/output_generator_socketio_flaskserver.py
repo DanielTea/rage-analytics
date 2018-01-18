@@ -17,11 +17,8 @@ from engine.realtime_RecognitionEngine_textOutput_v2_copy import RecognitionEngi
 app = Flask(__name__)
 socketio = SocketIO(app, async_mode="threading", ping_timeout=10000)
 
-#EXAMPLE LINK:
-# http://0.0.0.0:8888/stream?links=https://www.twitch.tv/a541021,https://www.twitch.tv/lostaiming,https://www.twitch.tv/fps_shaka,https://www.twitch.tv/cawai0147&resolution=360p
-
-
 streamer_list = []
+analyseAll = False
 # r_engine = RecognitionEngine(streamer_list,  emotion_classifier, graph, queueSize=128)
 
 @socketio.on('connect')
@@ -34,22 +31,27 @@ def handle_disconnect():
     K.clear_session()
     print("disconnected")
 
+@socketio.on('analyseAll')
+def handle_analyse(arg1):
+    print("changed analyse satus to " + arg1)
+    analyseAll = arg1
+
 @socketio.on('sendStreamer', namespace='/stream')
 def handle_top_five_streamer(arg1):
 
     K.clear_session()
-    emit('session_clean', 'clean')
+    emit('sessionStatus', '0') # deleted network
 
     tf.reset_default_graph()
     emotion_model_path = './Engine/trained_models/emotion_models/fer2013_mini_XCEPTION.102-0.66.hdf5'
     emotion_classifier = load_model(emotion_model_path, compile=False)
     emotion_classifier._make_predict_function()
     graph = tf.get_default_graph()
-    emit('network_created', 'created_network')
+
+    emit('sessionStatus', '1')  # created Network
 
 
     print('received args: ' + str(arg1))
-    # emit("test", "test1")
 
     link_list = arg1
     resolution = '360p'
@@ -62,7 +64,9 @@ def handle_top_five_streamer(arg1):
         video_streamer_list.append([link, vs])
 
     r_engine = RecognitionEngine(video_streamer_list, emotion_classifier, graph, queueSize=128)
-    # emit('test',"test2")
+
+    emit('sessionStatus', '2')  # initialised FFMPEG
+
     while True:
 
         if r_engine.more():
