@@ -1,4 +1,4 @@
-var socket = io.connect('http://127.0.0.1:5000/');
+var socket = io.connect('http://127.0.0.1:5000/stream');
 
 const heartbeatTime = 3000;
 const overlayStyle = "rage-overlay-style-darker";
