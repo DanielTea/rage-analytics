@@ -275,9 +275,25 @@ function createCustomNotification(streamer) {
     buttonSvg.setAttribute("version", "1.1");
     buttonSvg.setAttribute("viewBox", "0 0 16 16");
 
-    let pathElement = document.createElement("")
+    let pathElement = document.createElement("path");
+    let svgString = "M8 6.586L3.757 2.343 2.343 3.757 6.586 8l-4.243 4.243 1.414 1.414L8 9.414l4.243 4.243 1.414-1.414L9.414 8l4.243-4.243-1.414-1.414"
+    pathElement.setAttribute("d", svgString);
+    pathElement.setAttribute("fill-rule", "evenodd");
 
     // ---- Body ----
+
+    let notificationBody = document.createElement("div");
+    notificationBody.className = "notification-box__body";
+
+    let streamImg = document.createElement("img");
+    streamImg.src = "https://static-cdn.jtvnw.net/previews-ttv/live_user_" + streamer.name + "-320x180.jpg"
+
+    let overlay = document.createElement("div");
+    overlay.className = "notification-box__overlay";
+
+    let rageText = document.createElement("span");
+    rageText.className = "notification-box__rage";
+    rageText.innerHTML = "RAGE!"
 
 }
 
@@ -308,12 +324,12 @@ HTML EXAMPLE
    </span>
   </div>
   <div class="notification-box__body">
-    <div class="notification-box__overlay"></div>
-  <img class="notification-box__image" src="https://static-cdn.jtvnw.net/previews-ttv/live_user_xoynuzi-320x180.jpg" alt="" width="70px">
-  <div class="notification-box__overlay">
+      <div class="notification-box__overlay"></div>
+      <img class="notification-box__image" src="https://static-cdn.jtvnw.net/previews-ttv/live_user_xoynuzi-320x180.jpg" alt="" width="70px">
+      <div class="notification-box__overlay">
 
-  </div>
-  <span class="notification-box__rage">RAGE!</span>
+      </div>
+      <span class="notification-box__rage">RAGE!</span>
   </div>
 
 
