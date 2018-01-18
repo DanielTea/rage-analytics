@@ -286,7 +286,6 @@ function createCustomNotification(streamer) {
          </svg>
     `;
 
-
     // ---- Body ----
 
     let notificationBody = document.createElement("div");
