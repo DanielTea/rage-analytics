@@ -262,23 +262,24 @@ function createCustomNotification(streamer) {
     topBar.className = "notification-box__top-bar";
 
     let title = document.createElement("span");
-    title.className = "notification-box__top-bar";
+    title.className = "notification-box__top-bar__title";
     title.innerHTML = streamer.title;
 
     let xButton = document.createElement("span");
     xButton.className = "x-button";
+    xButton.innerHTML = `
+        <svg class="button-svg"      
+               width="18px" 
+               height="18px" 
+               version="1.1" 
+               viewBox="0 0 16 16"
+               onclick=removeNotification("xoynuzi")>
+            <path d="M8 6.586L3.757 2.343 2.343 3.757 6.586 8l-4.243 4.243 1.414 1.414L8 9.414l4.243 4.243 1.414-1.414L9.414 8l4.243-4.243-1.414-1.414" 
+                  fill-rule="evenodd">       
+            </path>
+         </svg>
+    `;
 
-    let buttonSvg = document.createElement("svg");
-    buttonSvg.className = "button-svg";
-    buttonSvg.setAttribute("width", "18px");
-    buttonSvg.setAttribute("height", "18px");
-    buttonSvg.setAttribute("version", "1.1");
-    buttonSvg.setAttribute("viewBox", "0 0 16 16");
-
-    let pathElement = document.createElement("path");
-    let svgString = "M8 6.586L3.757 2.343 2.343 3.757 6.586 8l-4.243 4.243 1.414 1.414L8 9.414l4.243 4.243 1.414-1.414L9.414 8l4.243-4.243-1.414-1.414"
-    pathElement.setAttribute("d", svgString);
-    pathElement.setAttribute("fill-rule", "evenodd");
 
     // ---- Body ----
 
@@ -286,14 +287,29 @@ function createCustomNotification(streamer) {
     notificationBody.className = "notification-box__body";
 
     let streamImg = document.createElement("img");
-    streamImg.src = "https://static-cdn.jtvnw.net/previews-ttv/live_user_" + streamer.name + "-320x180.jpg"
+    streamImg.className = "notification-box__image";
+    streamImg.src = "https://static-cdn.jtvnw.net/previews-ttv/live_user_" + streamer.name + "-320x180.jpg";
 
     let overlay = document.createElement("div");
     overlay.className = "notification-box__overlay";
 
     let rageText = document.createElement("span");
     rageText.className = "notification-box__rage";
-    rageText.innerHTML = "RAGE!"
+    rageText.innerHTML = "RAGE!";
+
+    // ---- Append Children ----
+
+    notificationBody.appendChild(overlay);
+    notificationBody.appendChild(streamImg);
+    notificationBody.appendChild(rageText);
+
+    topBar.appendChild(title);
+    topBar.appendChild(xButton);
+
+    notification.appendChild(topBar);
+    notification.appendChild(notificationBody);
+
+    return notification
 
 }
 
