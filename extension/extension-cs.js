@@ -320,10 +320,8 @@ function createCustomNotification(streamer) {
 }
 
 function removeCustomNotification(streamerName) {
-
-    console.log("getting element " + "notification_" + streamerName)
+    console.log("removing element " + "notification_" + streamerName);
     document.getElementById("notification_" + streamerName).remove();
-    alert("removed element " + streamerName )
 }
 
 
