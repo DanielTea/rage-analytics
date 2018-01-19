@@ -238,6 +238,91 @@ function createStreamerData(elem)
   return newStreamer
 }
 
+
+function showRageNotification(streamer)
+{
+  let notification = new Notification('Rage incoming!', {
+    icon: streamer.img,
+    body: streamer.name.substr(1) + " is raging! Check it out here",
+  });
+
+  notification.onclick = function () {
+    window.open("https://www.twitch.tv" + streamerName);
+  };
+}
+
+function showCustomNotification(streamer) {
+    let infoBar = document.getElementsByClassName("channel-info-bar");
+    infoBar.appendChild(createStreamerData())
+}
+
+function createCustomNotification(streamer) {
+
+    let notification = document.createElement("div");
+    notification.className = "notification-box";
+    notification.id = "notification_" + streamer.name;
+
+    // ---- Top Bar ----
+
+    let topBar = document.createElement("div");
+    topBar.className = "notification-box__top-bar";
+
+    let title = document.createElement("span");
+    title.className = "notification-box__top-bar__title";
+    title.innerHTML = streamer.title;
+
+    let xButton = document.createElement("span");
+    xButton.className = "x-button";
+    xButton.innerHTML = `
+        <svg class="button-svg"      
+               width="18px" 
+               height="18px" 
+               version="1.1" 
+               viewBox="0 0 16 16"
+               onclick=removeCustomNotification("` + streamer.name +`")>
+            <path d="M8 6.586L3.757 2.343 2.343 3.757 6.586 8l-4.243 4.243 1.414 1.414L8 9.414l4.243 4.243 1.414-1.414L9.414 8l4.243-4.243-1.414-1.414" 
+                  fill-rule="evenodd">       
+            </path>
+         </svg>
+    `;
+
+    // ---- Body ----
+
+    let notificationBody = document.createElement("div");
+    notificationBody.className = "notification-box__body";
+
+    let streamImg = document.createElement("img");
+    streamImg.className = "notification-box__image";
+    streamImg.src = "https://static-cdn.jtvnw.net/previews-ttv/live_user_" + streamer.name + "-320x180.jpg";
+
+    let overlay = document.createElement("div");
+    overlay.className = "notification-box__overlay";
+
+    let rageText = document.createElement("span");
+    rageText.className = "notification-box__rage";
+    rageText.innerHTML = "RAGE!";
+
+    // ---- Append Children ----
+
+    notificationBody.appendChild(overlay);
+    notificationBody.appendChild(streamImg);
+    notificationBody.appendChild(rageText);
+
+    topBar.appendChild(title);
+    topBar.appendChild(xButton);
+
+    notification.appendChild(topBar);
+    notification.appendChild(notificationBody);
+
+    return notification
+
+}
+
+function removeCustomNotification(streamerName) {
+    console.log("removing element " + "notification_" + streamerName);
+    document.getElementById("notification_" + streamerName).remove();
+}
+
 function addAnimationInit()
 {
   let selector = ".top-nav__menu, .tw-button, .top-nav__nav-link, .tw-button__text, .directory-header__link, .tw-button--hollow, .directory-tabs__item";
