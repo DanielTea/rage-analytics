@@ -10,7 +10,7 @@ def main_render():
 
 @app.route('/data',  methods= ['GET',  'POST'])
 def get_data():
-    graph_data = open('emotion.txt', 'r').read()
+    graph_data = open('../emotion.txt', 'r').read()
     lines = str(graph_data.split('\n')[-2])
     data_list = lines.split(",")
 
