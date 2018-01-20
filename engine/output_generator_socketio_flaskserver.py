@@ -11,7 +11,7 @@ from keras.models import load_model
 from realtime_VideoStreamer import VideoStreamer
 from keras import backend as K
 
-from realtime_RecognitionEngine_textOutput_v2_copy import RecognitionEngine
+from realtime_RecognitionEngine_textOutput_v2 import RecognitionEngine
 import multiprocessing.dummy as mp
 
 # emotion_model_path = './Engine/trained_models/emotion_models/fer2013_mini_XCEPTION.102-0.66.hdf5'
