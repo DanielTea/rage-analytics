@@ -33,11 +33,20 @@ const overlayMessages = {"rage": [  "don't cry, NAME",
 const streamerSelection = "SELECTION";
 const streamerWatching = "WATCHING";
 
+const stringForStreamerSelection = /^https:\/\/www\.twitch\.tv\/directory\/game\/[\w%']{3,}$/;
+const stringForWatchingAStream = /^https:\/\/www\.twitch\.tv\/[\w%']{3,}$/;
+const subdomainsToExclude = ["directory"];
+
+const regExForStreamerSelection = new RegExp(stringForStreamerSelection);
+const regExForWatchingAStream = new RegExp(stringForWatchingAStream);
+
 let currentStreamer = new Map();
 let activeGame = "";
 
 let currentUrl = window.location.href;
 let intervalUrl;
+
+let savedStreamers;
 
 // tell the background script o start a new Session
  let toDo = checkUrl();
@@ -82,7 +91,7 @@ function initEventsAndIntervalsSelection()
       let streamerList = getStreamerData();
       let streamerNameList = streamerList.map(streamer => streamer.name)
 
-      console.log("send data " + streamerNameList);
+      console.log("send data for selection " + streamerNameList);
       console.log(streamerList.length);
 
       socket.emit('sendStreamer', streamerNameList);
@@ -111,16 +120,22 @@ function initEventsAndIntervalsWatching()
     }
   }, heartbeatTime);
 
+  // send saved Streamer Data in background
+  setTimeout( function() {
+
+    let streamerNameList = savedStreamers.map(streamer => streamer.name)
+
+    console.log("send data for watching " + streamerNameList);
+    console.log(savedStreamers.length);
+
+    socket.emit('sendStreamer', streamerNameList);
+
+    streamerNameList.forEach(streamer => currentStreamer.set(streamer, {"timeout": ""}));
+  }, heartbeatTime);
 }
 
 function checkUrl()
 {
-  const stringForStreamerSelection = /^https:\/\/www\.twitch\.tv\/directory\/game\/[\w%']{3,}$/;
-  const stringForWatchingAStream = /^https:\/\/www\.twitch\.tv\/[\w%']{3,}$/;
-  const subdomainsToExculde = ["directory"]
-
-  const regExForStreamerSelection = new RegExp(stringForStreamerSelection);
-  const regExForWatchingAStream = new RegExp(stringForWatchingAStream);
 
   if (regExForStreamerSelection.test(currentUrl))
   {
@@ -132,7 +147,7 @@ function checkUrl()
     let splittedUrl = currentUrl.split("/");
     let subdomain = splittedUrl[splittedUrl.length-1];
 
-    if (subdomainsToExculde.includes(subdomain))
+    if (subdomainsToExclude.includes(subdomain))
     {
       return toDoNothing;
     }
@@ -220,6 +235,7 @@ function getStreamerData()
   let data = [];
   fiveFirst.forEach(item => data.push(createStreamerData(item)));
 
+  savedStreamers = data;
   return data;
 }
 
@@ -261,13 +277,18 @@ function insertNotificationContainer()
 
 function showCustomNotification(streamer)
 {
-    if(document.getElementsByClassName("notification-container").length == 0)
-    {
-      insertNotificationContainer();
-    }
+
+  if(document.getElementsByClassName("notification-container").length === 0)
+  {
+    insertNotificationContainer();
+  }
+
+  if(!document.getElementById("notification_" + streamer.name))
+  {
     document
-        .getElementsByClassName("notification-container")[0]
-        .appendChild(createCustomNotification(streamer))
+      .getElementsByClassName("notification-container")[0]
+      .appendChild(createCustomNotification(streamer))
+  }
 }
 
 function removeCustomNotification(streamerName)
@@ -279,10 +300,10 @@ function removeCustomNotification(streamerName)
 
 function createCustomNotification(streamer)
 {
-
+    let streamerName = streamer.name.substring(1);
     let notification = document.createElement("div");
     notification.className = "notification-box";
-    notification.id = "notification_" + streamer.name;
+    notification.id = "notification_" + streamerName;
 
     // ---- Top Bar ----
 
@@ -301,7 +322,7 @@ function createCustomNotification(streamer)
                height="18px" 
                version="1.1" 
                viewBox="0 0 16 16"
-               onclick=removeCustomNotification("` + streamer.name +`")>
+               onclick=removeCustomNotification("` + streamerName +`")>
             <path d="M8 6.586L3.757 2.343 2.343 3.757 6.586 8l-4.243 4.243 1.414 1.414L8 9.414l4.243 4.243 1.414-1.414L9.414 8l4.243-4.243-1.414-1.414" 
                   fill-rule="evenodd">       
             </path>
@@ -315,7 +336,7 @@ function createCustomNotification(streamer)
 
     let streamImg = document.createElement("img");
     streamImg.className = "notification-box__image";
-    streamImg.src = "https://static-cdn.jtvnw.net/previews-ttv/live_user_" + streamer.name + "-320x180.jpg";
+    streamImg.src = "https://static-cdn.jtvnw.net/previews-ttv/live_user_" + streamerName + "-320x180.jpg";
 
     let overlay = document.createElement("div");
     overlay.className = "notification-box__overlay";
@@ -362,6 +383,7 @@ socket.on("test", function(msg) {console.log(msg)});
 
 socket.on("rageIncoming", function(msg)
 {
+  console.log("MESSAGE: ", msg)
   if (msg.link == "%no-rage")
   {
     deredify();
@@ -369,18 +391,30 @@ socket.on("rageIncoming", function(msg)
   }
   else
   {
-    redify();
+    if(regExForStreamerSelection.test(currentUrl))
+    {
+      redify();
 
-    let oldText = S("a[href='" + msg.link + "']  > span.rage-overlay-text");
-    oldText.forEach(item => item.remove());
+      let oldText = S("a[href='" + msg.link + "']  > span.rage-overlay-text");
+      oldText.forEach(item => item.remove());
 
-    showRage(msg.link);
-    let thisStreamer = currentStreamer.get(msg.link);
-    clearTimeout(thisStreamer.timeout);
-    thisStreamer.timeout = setTimeout(function () {
-        unshowRage(msg.link);
-    }, 3000);
-    console.log("RAGE RAGE BABY");
+      showRage(msg.link);
+      let thisStreamer = currentStreamer.get(msg.link);
+      clearTimeout(thisStreamer.timeout);
+      thisStreamer.timeout = setTimeout(function () {
+          unshowRage(msg.link);
+      }, 3000);
+      console.log("RAGE RAGE BABY");
+    }
+    else if(regExForWatchingAStream.test(currentUrl))
+    {
+      console.log("Rage Notification for ", msg.link)
+      console.log("savedStreamers:", savedStreamers);
+      let streamer = savedStreamers.filter(savedStreamer => savedStreamer.name == msg.link)[0];
+      console.log(streamer);
+      console.log(streamer.name, "is raging, creating a notification")
+      showCustomNotification(streamer)
+    }
   }
 });
 
