@@ -283,8 +283,8 @@ function showCustomNotification(streamer)
     insertNotificationContainer();
   }
 
-  if(!document.getElementById("notification_" + streamer.name))
-  {
+  if(!document.getElementById("notification_" + streamer.name.substring(1)))
+  { 
     document
       .getElementsByClassName("notification-container")[0]
       .appendChild(createCustomNotification(streamer))
