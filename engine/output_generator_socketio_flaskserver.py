@@ -61,8 +61,7 @@ def handle_top_five_streamer(arg1):
     emit('sessionStatus', '1')  # created Network
 
     link_list = arg1
-    resolution = '360p'
-
+    resolution = '480p'
 
     video_streamer_list = []
 
@@ -74,10 +73,6 @@ def handle_top_five_streamer(arg1):
     p.map(get_video, link_list)
     p.close()
     p.join()
-
-#    for link in link_list:
- #       vs = VideoStreamer("https://www.twitch.tv"+str(link), queueSize=128, resolution=resolution, n_frame=15)
-  #      video_streamer_list.append([link, vs])
 
     r_engine = RecognitionEngine(video_streamer_list, emotion_classifier, graph, queueSize=128)
 
@@ -93,10 +88,7 @@ def handle_top_five_streamer(arg1):
             emit('rageIncoming', {'link': str(element[0]), 'confidence': str(element[1])})
 
         else:
-            # emit('heart', {'link': "%no-rage", 'confidence': "0"})
             continue
 
 if __name__ == '__main__':
     socketio.run(app)
-
-    # app.run(debug = True, host='0.0.0.0', port=8888, passthrough_errors=True, threaded=True)
