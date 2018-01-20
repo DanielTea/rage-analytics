@@ -230,5 +230,10 @@
   position: absolute;
 }
 
+.notification-container {
+    width: 100%;
+    height: 200px;
+    background: cyan;
+}
 
 /* notification-css ^*/

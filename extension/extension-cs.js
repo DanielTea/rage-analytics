@@ -251,12 +251,34 @@ function showRageNotification(streamer)
   };
 }
 
-function showCustomNotification(streamer) {
-    let infoBar = document.getElementsByClassName("channel-info-bar");
-    infoBar.appendChild(createStreamerData())
+function insertNotificationContainer()
+{
+  let notificationContainer = document.createElement("div");
+  notificationContainer.className = "notification-container";
+  let infoBar = document.getElementsByClassName("channel-info-bar")[0];
+  infoBar.parentNode.insertBefore(notificationContainer, infoBar.nextSibling);
 }
 
-function createCustomNotification(streamer) {
+function showCustomNotification(streamer)
+{
+    if(document.getElementsByClassName("notification-container"))
+    {
+      insertNotificationContainer();
+    }
+    document
+        .getElementsByClassName("notification-container")[0]
+        .appendChild(createCustomNotification(streamer))
+}
+
+function removeCustomNotification(streamerName)
+{
+    console.log("removing element " + "notification_" + streamerName);
+    document.getElementById("notification_" + streamerName).remove();
+}
+
+
+function createCustomNotification(streamer)
+{
 
     let notification = document.createElement("div");
     notification.className = "notification-box";
@@ -318,10 +340,6 @@ function createCustomNotification(streamer) {
 
 }
 
-function removeCustomNotification(streamerName) {
-    console.log("removing element " + "notification_" + streamerName);
-    document.getElementById("notification_" + streamerName).remove();
-}
 
 function addAnimationInit()
 {
