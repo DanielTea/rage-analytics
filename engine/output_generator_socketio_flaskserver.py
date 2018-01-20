@@ -61,7 +61,7 @@ def handle_top_five_streamer(arg1):
     emit('sessionStatus', '1')  # created Network
 
     link_list = arg1
-    resolution = '480p'
+    resolution = '360p'
 
     video_streamer_list = []
 
@@ -91,4 +91,4 @@ def handle_top_five_streamer(arg1):
             continue
 
 if __name__ == '__main__':
-    socketio.run(app)
+    socketio.run(app, port=5000)
