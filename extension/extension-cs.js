@@ -1,4 +1,4 @@
-var socket = io.connect('http://127.0.0.1:5000/stream');
+var socket = io.connect('http://127.0.0.1:5001/stream');
 
 const heartbeatTime = 3000;
 const overlayStyle = "rage-overlay-style-darker";
@@ -67,12 +67,12 @@ socket.on('connect', function()
   console.log("BITCHES");
 });
 
-socket.on("sessionStatus", function(msg) {console.log(msg)});
+socket.on("sessionStatus", function(msg) { handleSessionStatus(msg) });
 
 socket.on("rageIncoming", function(msg)
 {
   console.log(msg);
-  
+
   redify();
 
   let oldText = S("a[href='" + msg.link + "']  > span.rage-overlay-text");
@@ -90,7 +90,67 @@ socket.on("rageIncoming", function(msg)
 
 });
 
+function handleSessionStatus(msg)
+{
+  console.log(msg);
+  if (msg == 0)
+  {
+    createSessionStatusOverlay()
+    setSessionStatusOverlayText("Initialising streams...");
+  }
+  else
+  if (msg == 1)
+  {
+    setSessionStatusOverlayText("Downloading streams...");
+  }
+  else
+  if (msg == 2)
+  {
+    setSessionStatusOverlayText("Started analysing!");
+    setTimeout(deleteSessionStatusOverlay, 2000);
 
+  }
+
+}
+function createSessionStatusOverlay()
+{;
+
+  const outerDiv = document.createElement("div");
+  outerDiv.setAttribute("id", "sessionStatusOverlay");
+  outerDiv.classList.add("animated");
+  outerDiv.classList.add("slideInRight");
+
+  const innerDiv = document.createElement("div");
+  innerDiv.setAttribute("id", "sessionStatusInner");
+
+
+  const spinner  = document.createElement("div");
+  spinner.setAttribute("id", "loading");
+
+  const span = document.createElement("span");
+  span.setAttribute("id", "sessionStatusOverlayText");
+
+  outerDiv.appendChild(innerDiv);
+  innerDiv.appendChild(span);
+
+  S("main")[0].appendChild(outerDiv);
+}
+
+function setSessionStatusOverlayText(text)
+{
+  S("#sessionStatusOverlayText")[0].textContent = text;
+}
+
+function deleteSessionStatusOverlay()
+{
+  let list = S("#sessionStatusOverlay, #sessionStatusOverlayText");
+  addClassToList(list, "status-fadeOut");
+
+  setTimeout(function() {
+    S("#sessionStatusOverlay")[0].remove();
+  }, 1500)
+
+}
 
 function initEventsAndIntervalsSelection()
 {
