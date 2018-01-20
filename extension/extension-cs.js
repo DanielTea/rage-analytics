@@ -13,8 +13,7 @@ const selectorsAndClasses =
   ];
 
 const sessionId = Date.now();
-const numberOfConcurrentStreamers = 100;
-let numberOfActualStreamer;
+const numberOfConcurrentStreamers = 10;
 
 const overlayMessages = {"rage": [  "don't cry, NAME",
                                     "too bad,  NAME",
@@ -38,6 +37,7 @@ let activeGame = "";
 
 let currentUrl = window.location.href;
 let intervalUrl;
+let timeOutDeredify;
 
 // // tell the background script o start a new Session
 //  let toDo = checkUrl();
@@ -56,6 +56,40 @@ window.addEventListener("newUrl", function()
   let toDo = checkUrl();
   toDo();
 });
+
+socket.on('connect', function()
+{
+  socket.emit('message', 'HELLO FROM EXTENSION JOOOOOOO  SELCETION');
+});
+
+ socket.on('disconnect', function()
+{
+  console.log("BITCHES");
+});
+
+socket.on("sessionStatus", function(msg) {console.log(msg)});
+
+socket.on("rageIncoming", function(msg)
+{
+  console.log(msg);
+  
+  redify();
+
+  let oldText = S("a[href='" + msg.link + "']  > span.rage-overlay-text");
+  oldText.forEach(item => item.remove());
+
+  showRage(msg.link);
+  let thisStreamer = currentStreamer.get(msg.link);
+  clearTimeout(thisStreamer.timeout);
+  thisStreamer.timeout = setTimeout(function () {
+      unshowRage(msg.link);
+  }, 3000);
+
+  clearTimeout(timeOutDeredify);
+  timeOutDeredify = setTimeout( function() { deredify() }, 3000);
+
+});
+
 
 
 function initEventsAndIntervalsSelection()
@@ -153,15 +187,7 @@ function toDoSelection()
   addAnimationInit();
   initEventsAndIntervalsSelection();
 
-  socket.on('connect', function()
-  {
-    socket.emit('message', 'HELLO FROM EXTENSION JOOOOOOO  SELCETION');
-  });
 
-   socket.on('disconnect', function()
-  {
-    console.log("BITCHES");
-  });
 }
 
 function toDoWatching()
@@ -171,10 +197,6 @@ function toDoWatching()
   addAnimationInit();
   initEventsAndIntervalsWatching();
 
-  socket.on('connect', function()
-  {
-    socket.emit('message', 'HELLO FROM EXTENSION JOOOOOOO WATCHING');
-  });
 }
 
 function toDoNothing()
@@ -240,32 +262,6 @@ function deredify()
   selectorsAndClasses.forEach(item => removeClassToList( S(item.selector) , item.className ));
 
 }
-
-socket.on("test", function(msg) {console.log(msg)});
-
-socket.on("rageIncoming", function(msg)
-{
-  if (msg.link == "%no-rage")
-  {
-    deredify();
-    console.log("NO RAGE");
-  }
-  else
-  {
-    redify();
-
-    let oldText = S("a[href='" + msg.link + "']  > span.rage-overlay-text");
-    oldText.forEach(item => item.remove());
-
-    showRage(msg.link);
-    let thisStreamer = currentStreamer.get(msg.link);
-    clearTimeout(thisStreamer.timeout);
-    thisStreamer.timeout = setTimeout(function () {
-        unshowRage(msg.link);
-    }, 3000);
-    console.log("RAGE RAGE BABY");
-  }
-});
 
 function showRage(msg)
 {
