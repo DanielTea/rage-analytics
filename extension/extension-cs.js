@@ -14,7 +14,7 @@ const selectorsAndClasses =
   ];
 
 const sessionId = Date.now();
-const numberOfConcurrentStreamers = 5;
+const numberOfConcurrentStreamers = 10;
 
 const overlayMessages = {"rage": [  "don't cry, NAME",
                                     "too bad,  NAME",
@@ -33,8 +33,10 @@ const overlayMessages = {"rage": [  "don't cry, NAME",
 const streamerSelection = "SELECTION";
 const streamerWatching = "WATCHING";
 
+let currentStreamer = new Map();
+let activeGame = "";
+
 let currentUrl = window.location.href;
-let intervalData;
 let intervalUrl;
 
 // tell the background script o start a new Session
@@ -61,18 +63,6 @@ window.addEventListener("newUrl", function()
 function initEventsAndIntervalsSelection()
 {
   clearInterval(intervalUrl);
-  clearInterval(intervalData);
-
-  // For getting getting and sending the data;
-  intervalData = setTimeout( function()
-  {
-    let streamerList = getStreamerData();
-    let streamerNameList = streamerList.map(streamer => streamer.name)
-
-    console.log("send data " + streamerNameList);
-    socket.emit('sendStreamer', streamerNameList);
-    saveCurrentStreamers(streamerList);
-  }, heartbeatTime);
 
   // for checking the current url -> twitch is react so i cant listen on load events
   intervalUrl = setInterval( function()
@@ -85,19 +75,30 @@ function initEventsAndIntervalsSelection()
     }
   }, heartbeatTime);
 
+  if (activeGame != currentUrl)
+  {
+    // For getting getting and sending the data;
+    setTimeout( function() {
+      let streamerList = getStreamerData();
+      let streamerNameList = streamerList.map(streamer => streamer.name)
 
+      console.log("send data " + streamerNameList);
+      console.log(streamerList.length);
+
+      socket.emit('sendStreamer', streamerNameList);
+
+      streamerNameList.forEach(streamer => currentStreamer.set(streamer, {"timeout": ""}));
+    }, heartbeatTime);
+  }
+  else
+  {
+    console.log("still the same game")
+  }
 }
 
 function initEventsAndIntervalsWatching()
 {
   clearInterval(intervalUrl);
-  clearInterval(intervalData);
-
-  // For getting getting and sending the data;
-  intervalData = setInterval( function()
-  {
-    getSavedStreamer();
-  }, heartbeatTime);
 
   // for checking the current url -> twitch is react so i cant listen on load events
   intervalUrl = setInterval( function()
@@ -139,6 +140,7 @@ function checkUrl()
     {
         return toDoWatching;
     }
+
   }
   else
   {
@@ -183,7 +185,6 @@ function toDoNothing()
   console.log("LAME! NOTHING TO DO");
 
   clearInterval(intervalUrl);
-  clearInterval(intervalData);
 
   // for checking the current url -> twitch is react so i cant listen on load events
   intervalUrl = setInterval( function()
@@ -258,16 +259,7 @@ socket.on("test", function(msg) {console.log(msg)});
 
 socket.on("rageIncoming", function(msg)
 {
-  let old = getData();
-
-  old.forEach( function(item)
-  {
-      document.querySelector("a[href='" + item + "'] > div").style.border = "" ;
-  });
-
-  unshowRage();
-
-  if (msg == "%no-rage")
+  if (msg.link == "%no-rage")
   {
     deredify();
     console.log("NO RAGE");
@@ -275,7 +267,16 @@ socket.on("rageIncoming", function(msg)
   else
   {
     redify();
-    showRage(msg);
+
+    let oldText = S("a[href='" + msg.link + "']  > span.rage-overlay-text");
+    oldText.forEach(item => item.remove());
+
+    showRage(msg.link);
+    let thisStreamer = currentStreamer.get(msg.link);
+    clearTimeout(thisStreamer.timeout);
+    thisStreamer.timeout = setTimeout(function () {
+        unshowRage(msg.link);
+    }, 3000);
     console.log("RAGE RAGE BABY");
   }
 });
@@ -306,13 +307,19 @@ function showRage(msg)
 
 }
 
-function unshowRage()
+function unshowRage(streamer)
 {
-  let allOverlays = S(".rage-overlay, .rage-overlay-text");
+  if (streamer == null)
+  {
+    let allOverlays = S(".rage-overlay, .rage-overlay-text");
 
-  allOverlays.forEach(item => {
-      item.remove();
-  });
+    allOverlays.forEach(item => item.remove());
+  }
+  else
+  {
+    let divsToDelete = S("a[href='" + streamer + "'] > div.rage-overlay.rage-overlay-style-darker, a[href='" + streamer + "']  > span.rage-overlay-text");
+    divsToDelete.forEach(item => item.remove());
+  }
 }
 
 function getRandomMessage(emotion) {
@@ -348,22 +355,21 @@ function initSession()
   });
 }
 
-function saveCurrentStreamers(streamerList)
-{
-  let message = {"type": "updateStreamer", "data": streamerList, "sessionId": sessionId }
-  chrome.runtime.sendMessage(message, function(response) {
-      console.log(response);
-  });
-}
-
-function getSavedStreamer()
-{
-  let message = {"type": "getStreamer", "sessionId": sessionId }
-  chrome.runtime.sendMessage(message, function(response) {
-      console.log("GOT FUCKING STREAMER FROM BG")
-      console.log(response);
-  });
-}
+// function saveCurrentStreamers(streamerList)
+// {
+//   let message = {"type": "updateStreamer", "data": streamerList, "sessionId": sessionId }
+//   chrome.runtime.sendMessage(message, function(response) {
+//       console.log(response);
+//   });
+// }
+//
+// function getSavedStreamer()
+// {
+//   let message = {"type": "getStreamer", "sessionId": sessionId }
+//   chrome.runtime.sendMessage(message, function(response) {
+//       console.log(response);
+//   });
+// }
 
 // first para is the message, the sencond the callback which will be again in the scope of this content script
 // chrome.runtime.sendMessage({text: "hey"}, function(response) {
