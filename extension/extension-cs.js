@@ -261,7 +261,7 @@ function insertNotificationContainer()
 
 function showCustomNotification(streamer)
 {
-    if(document.getElementsByClassName("notification-container"))
+    if(document.getElementsByClassName("notification-container").length == 0)
     {
       insertNotificationContainer();
     }
@@ -326,8 +326,8 @@ function createCustomNotification(streamer)
 
     // ---- Append Children ----
 
-    notificationBody.appendChild(overlay);
     notificationBody.appendChild(streamImg);
+    notificationBody.appendChild(overlay);
     notificationBody.appendChild(rageText);
 
     topBar.appendChild(title);
