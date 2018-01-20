@@ -10,11 +10,11 @@ const selectorsAndClasses =
     {selector: ".top-nav__nav-link, .tw-button__text, .directory-header__link, .tw-button--hollow", className: "rage-color"},
     {selector: ".directory-tabs__item", className: "rage-color-darker" },
     {selector: ".directory-tabs__item--selected", className: "rage-red-bottom-border" },
-
   ];
 
 const sessionId = Date.now();
-const numberOfConcurrentStreamers = 10;
+const numberOfConcurrentStreamers = 100;
+let numberOfActualStreamer;
 
 const overlayMessages = {"rage": [  "don't cry, NAME",
                                     "too bad,  NAME",
@@ -39,16 +39,15 @@ let activeGame = "";
 let currentUrl = window.location.href;
 let intervalUrl;
 
-// tell the background script o start a new Session
- let toDo = checkUrl();
- toDo();
+// // tell the background script o start a new Session
+//  let toDo = checkUrl();
+//  toDo();
 
 window.addEventListener("load", function()
 {
   // tell the background script o start a new Session
   let toDo = checkUrl();
   toDo();
-
 });
 
 window.addEventListener("newUrl", function()
@@ -56,7 +55,6 @@ window.addEventListener("newUrl", function()
   currentUrl = window.location.href;
   let toDo = checkUrl();
   toDo();
-
 });
 
 
@@ -140,7 +138,6 @@ function checkUrl()
     {
         return toDoWatching;
     }
-
   }
   else
   {
@@ -152,7 +149,7 @@ function toDoSelection()
 {
   console.log("STREAMER SELECTION");
 
-  initSession();
+  // initSession();
   addAnimationInit();
   initEventsAndIntervalsSelection();
 
@@ -200,21 +197,9 @@ function toDoNothing()
   deredify();
 }
 
-function getData()
-{
-  let list = S(".live-channel-card__channel");
-
-  let fiveFirst = list.slice(0,numberOfConcurrentStreamers);
-  let data = [];
-
-  fiveFirst.forEach(item => data.push(item.getAttribute("href")));
-
-  return data;
-}
-
 function getStreamerData()
 {
-  let list = S(".tw-card");
+  let list = S(".live-channel-card > .tw-card");
   let fiveFirst = list.slice(0,numberOfConcurrentStreamers);
 
   let data = [];
@@ -226,6 +211,7 @@ function getStreamerData()
 function createStreamerData(elem)
 {
   let aTag = elem.firstChild.firstChild.firstChild.firstChild.firstChild;
+
   let streamerName = aTag.href.replace("https://www.twitch.tv", "");
 
   let newStreamer = { "name" : streamerName,
@@ -233,7 +219,7 @@ function createStreamerData(elem)
                       "img" : "https://static-cdn.jtvnw.net/previews-ttv/live_user_" + streamerName.substr(1) + "-320x180.jpg"
   };
 
-  console.log("new Streamer tracked:", newStreamer);
+  // console.log("new Streamer tracked:", newStreamer);
 
   return newStreamer
 }
@@ -347,13 +333,13 @@ function getRandomInt(min, max) {
   max = Math.floor(max);
   return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
 }
-function initSession()
-{
-  let message = {"type": "initSession", "sessionId": sessionId, "numberOfConcurrentStreamers": numberOfConcurrentStreamers};
-  chrome.runtime.sendMessage(message, function(response) {
-      console.log(response);
-  });
-}
+// function initSession()
+// {
+//   let message = {"type": "initSession", "sessionId": sessionId, "numberOfConcurrentStreamers": numberOfConcurrentStreamers};
+//   chrome.runtime.sendMessage(message, function(response) {
+//       console.log(response);
+//   });
+// }
 
 // function saveCurrentStreamers(streamerList)
 // {
