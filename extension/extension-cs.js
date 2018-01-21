@@ -4,7 +4,7 @@ const heartbeatTime = 3000;
 const overlayStyle = "rage-overlay-style-darker";
 const selectorsAndClasses =
   [
-    {selector: ".top-nav__menu", className: "rage-red-bg" },
+    {selector: ".top-nav__menu", className: "red-rage-bg" },
     {selector: ".tw-button", className: "rage-red-bg-second" },
     {selector: ".tw-button", className: "rage-no-border" },
     {selector: ".tw-button--hollow", className: "rage-hollow"},
@@ -14,7 +14,7 @@ const selectorsAndClasses =
   ];
 
 const sessionId = Date.now();
-const numberOfConcurrentStreamers = 50;
+const numberOfConcurrentStreamers = 5;
 
 const overlayMessages = {"rage": [  "don't cry, NAME",
                                     "too bad,  NAME",

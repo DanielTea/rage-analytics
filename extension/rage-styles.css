@@ -11,9 +11,26 @@
 
  */
 
+ @keyframes twitch-background-gradient {
+ 	0% {
+ 		background-position: 0%;
+ 	}
+
+ 	100% {
+ 		background-position: 100%;
+ 	}
+}
+
  .rage-red-bg {
   background-image: linear-gradient(45deg, #fb3640, #f46036) !important;
+  /* background-image: linear-gradient(45deg, #6441a4, #6441a4, #fb3640, #f46036) !important; */
+  /* background-size: 300%; */
 }
+
+.move-rage-red-bg {
+  animation: : twitch-background-gradient 5s ease;
+}
+
 
 .rage-red-bg-second {
   background-color: #fb3640 !important;
