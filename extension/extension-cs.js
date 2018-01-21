@@ -4,7 +4,7 @@ const heartbeatTime = 3000;
 const overlayStyle = "rage-overlay-style-darker";
 const selectorsAndClasses =
   [
-    {selector: ".top-nav__menu", className: "rage-red-bg" },
+    {selector: ".top-nav__menu", className: "rage-red-bg-moved" },
     {selector: ".tw-button", className: "rage-red-bg-second" },
     {selector: ".tw-button", className: "rage-no-border" },
     {selector: ".tw-button--hollow", className: "rage-hollow"},
@@ -311,6 +311,8 @@ function addAnimationInit()
 {
   let selector = ".top-nav__menu, .tw-button, .top-nav__nav-link, .tw-button__text, .directory-header__link, .tw-button--hollow, .directory-tabs__item";
   addClassToList( S(selector) , "rage-animation-init" );
+
+  S(".top-nav__menu")[0].classList.add("rage-red-bg");
 }
 
 function redify()
