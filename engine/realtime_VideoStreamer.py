@@ -14,35 +14,60 @@ class VideoStreamer:
         # initialize the queue used to store frames read from
         # the video stream
         self.Q = Queue(maxsize=queueSize)
-        self.create_pipe()
-        self.start_buffer()
+        checkIfStreamsWorks = self.create_pipe()
+
+        if checkIfStreamsWorks:
+            self.start_buffer()
 
     def create_pipe(self):
 
-        streams = streamlink.streams(self.twitch_url)
+        try:
+            streams = streamlink.streams(self.twitch_url)
+        except streamlink.exceptions.NoPluginError:
+            print("NO STREAM AVAILABLE")
+            return False
+        except:
+            print("NO STREAM AVAILABLE no exception")
+            return False
 
-        print("available streams: "+ str(streams))
-        stream = streams[self.res]
+        #print("available streams: "+ str(streams))
 
-        if self.res == "720p":
+        finalRes = False
 
-            self.byte_lenght = 1280
-            self.byte_width = 720
+        resolutions = {'360p': {"byte_lenght": 640, "byte_width": 360}, '480p': {"byte_lenght": 854, "byte_width": 480}, '720p': {"byte_lenght": 1280, "byte_width": 720}}
 
-        elif self.res == "360p":
+        if self.res in streams:
+            finalRes = self.res
+        else:
+            for key in resolutions:
+                if key != self.res:
+                    if key in streams:
+                        print("USED FALL BACK " + key)
+                        finalRes = key
+                        break
+                else:
+                    continue
 
-            self.byte_lenght = 640
-            self.byte_width = 360
+        if finalRes == False:
+            return False
+            print("COULDN NOT FIND STREAM")
+        else:
+            self.byte_lenght = resolutions[finalRes]["byte_lenght"]
+            self.byte_width = resolutions[finalRes]["byte_width"]
 
-        self.stream_url = stream.url
+            print("FINAL RES " + finalRes)
 
-        self.pipe = sp.Popen(['/home/sd092/ffmpeg-git-20180111-32bit-static/ffmpeg', "-i", self.stream_url,
-                         "-loglevel", "quiet",  # no text output
-                         "-an",  # disable audio
-                         "-f", "image2pipe",
-                         "-pix_fmt", "bgr24",
-                         "-vcodec", "rawvideo", "-"],
-                        stdin=sp.PIPE, stdout=sp.PIPE)
+            stream = streams[finalRes]
+            self.stream_url = stream.url
+
+            self.pipe = sp.Popen(['/home/sd092/ffmpeg-git-20180111-32bit-static/ffmpeg', "-i", self.stream_url,
+                             "-loglevel", "quiet",  # no text output
+                             "-an",  # disable audio
+                             "-f", "image2pipe",
+                             "-pix_fmt", "bgr24",
+                             "-vcodec", "rawvideo", "-"],
+                            stdin=sp.PIPE, stdout=sp.PIPE)
+            return True
 
     def start_buffer(self):
         # start a thread to read frames from the file video stream
