@@ -1,4 +1,4 @@
-var socket = io.connect('http://127.0.0.1:5001/stream');
+var socket = io.connect('http://127.0.0.1:5000/stream');
 
 const heartbeatTime = 3000;
 const overlayStyle = "rage-overlay-style-darker";
@@ -7,13 +7,14 @@ const selectorsAndClasses =
     {selector: ".top-nav__menu", className: "rage-red-bg" },
     {selector: ".tw-button", className: "rage-red-bg-second" },
     {selector: ".tw-button", className: "rage-no-border" },
+    {selector: ".tw-button--hollow", className: "rage-hollow"},
     {selector: ".top-nav__nav-link, .tw-button__text, .directory-header__link, .tw-button--hollow", className: "rage-color"},
     {selector: ".directory-tabs__item", className: "rage-color-darker" },
     {selector: ".directory-tabs__item--selected", className: "rage-red-bottom-border" },
   ];
 
 const sessionId = Date.now();
-const numberOfConcurrentStreamers = 10;
+const numberOfConcurrentStreamers = 50;
 
 const overlayMessages = {"rage": [  "don't cry, NAME",
                                     "too bad,  NAME",
@@ -360,7 +361,9 @@ function unshowRage(streamer)
   else
   {
     let divsToDelete = S("a[href='" + streamer + "'] > div.rage-overlay.rage-overlay-style-darker, a[href='" + streamer + "']  > span.rage-overlay-text");
-    divsToDelete.forEach(item => item.remove());
+    addClassToList(divsToDelete, "status-fadeOut");
+    setTimeout(function() { divsToDelete.forEach(item => item.remove()) }, 1500)
+
   }
 }
 
