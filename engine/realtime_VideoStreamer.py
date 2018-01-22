@@ -20,54 +20,50 @@ class VideoStreamer:
             self.start_buffer()
 
     def create_pipe(self):
+        streamer_name = self.twitch_url.split("/")[3]
+
 
         try:
             streams = streamlink.streams(self.twitch_url)
         except streamlink.exceptions.NoPluginError:
-            print("NO STREAM AVAILABLE")
+            print("NO STREAM AVAILABLE for " + streamer_name)
             return False
         except:
-            print("NO STREAM AVAILABLE no exception")
+            print("NO STREAM AVAILABLE no exception " + streamer_name)
             return False
 
         #print("available streams: "+ str(streams))
 
-        finalRes = False
-
-        resolutions = {'360p': {"byte_lenght": 640, "byte_width": 360}, '480p': {"byte_lenght": 854, "byte_width": 480}, '720p': {"byte_lenght": 1280, "byte_width": 720}}
+        resolutions = {'360p': {"byte_lenght": 640, "byte_width": 360}, '480p': {"byte_lenght": 854, "byte_width": 480}, '720p': {"byte_lenght": 1280, "byte_width": 720}, '1080p': {"byte_lenght": 1920, "byte_width": 1080}}
 
         if self.res in streams:
             finalRes = self.res
         else:
             for key in resolutions:
-                if key != self.res:
-                    if key in streams:
-                        print("USED FALL BACK " + key)
-                        finalRes = key
-                        break
-                else:
-                    continue
+                if key != self.res and key in streams:
+                    print("USED FALL BACK " + key)
+                    finalRes = key
+                    break
+            else: # das else gehört zur foor loop! wenn sie nicht breaked dann wird der teil ausgeführt https://docs.python.org/2/tutorial/controlflow.html#break-and-continue-statements-and-else-clauses-on-loops
+                print("COULD NOT FIND STREAM " + streamer_name)
+                return False
 
-        if finalRes == False:
-            return False
-            print("COULDN NOT FIND STREAM")
-        else:
-            self.byte_lenght = resolutions[finalRes]["byte_lenght"]
-            self.byte_width = resolutions[finalRes]["byte_width"]
+        self.byte_lenght = resolutions[finalRes]["byte_lenght"]
+        self.byte_width = resolutions[finalRes]["byte_width"]
 
-            print("FINAL RES " + finalRes)
+        print("FINAL RES " + finalRes + " " + streamer_name)
 
-            stream = streams[finalRes]
-            self.stream_url = stream.url
+        stream = streams[finalRes]
+        self.stream_url = stream.url
 
-            self.pipe = sp.Popen(['/home/sd092/ffmpeg-git-20180111-32bit-static/ffmpeg', "-i", self.stream_url,
-                             "-loglevel", "quiet",  # no text output
-                             "-an",  # disable audio
-                             "-f", "image2pipe",
-                             "-pix_fmt", "bgr24",
-                             "-vcodec", "rawvideo", "-"],
-                            stdin=sp.PIPE, stdout=sp.PIPE)
-            return True
+        self.pipe = sp.Popen(['/home/sd092/ffmpeg-git-20180111-32bit-static/ffmpeg', "-i", self.stream_url,
+                         "-loglevel", "quiet",  # no text output
+                         "-an",  # disable audio
+                         "-f", "image2pipe",
+                         "-pix_fmt", "bgr24",
+                         "-vcodec", "rawvideo", "-"],
+                        stdin=sp.PIPE, stdout=sp.PIPE)
+        return True
 
     def start_buffer(self):
         # start a thread to read frames from the file video stream

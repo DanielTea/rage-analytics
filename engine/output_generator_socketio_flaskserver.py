@@ -43,10 +43,9 @@ def handle_analyse(arg1):
 
 @socketio.on('sendStreamer', namespace='/stream')
 def handle_top_five_streamer(arg1):
+
     print("")
-    print("")
-    print('received args: ' + str(arg1))
-    print("")
+    print('RECEIVED: ' + str(arg1))
     print("")
 
     K.clear_session()
@@ -73,6 +72,10 @@ def handle_top_five_streamer(arg1):
     p.map(get_video, link_list)
     p.close()
     p.join()
+
+    print("")
+    print("STARTING TO ANALYSE " + str(len(link_list)) + " streams")
+    print("")
 
     r_engine = RecognitionEngine(video_streamer_list, emotion_classifier, graph, queueSize=128)
 
