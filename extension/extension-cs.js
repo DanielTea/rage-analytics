@@ -4,17 +4,17 @@ const heartbeatTime = 3000;
 const overlayStyle = "rage-overlay-style-darker";
 const selectorsAndClasses =
   [
-    {selector: ".top-nav__menu", className: "rage-red-bg" },
+    {selector: ".top-nav__menu", className: "rage-red-bg-moved" },
     {selector: ".tw-button", className: "rage-red-bg-second" },
     {selector: ".tw-button", className: "rage-no-border" },
+    {selector: ".tw-button--hollow", className: "rage-hollow"},
     {selector: ".top-nav__nav-link, .tw-button__text, .directory-header__link, .tw-button--hollow", className: "rage-color"},
     {selector: ".directory-tabs__item", className: "rage-color-darker" },
     {selector: ".directory-tabs__item--selected", className: "rage-red-bottom-border" },
-
   ];
 
 const sessionId = Date.now();
-const numberOfConcurrentStreamers = 10;
+const numberOfConcurrentStreamers = 50;
 
 const overlayMessages = {"rage": [  "don't cry, NAME",
                                     "too bad,  NAME",
@@ -45,19 +45,19 @@ let activeGame = "";
 
 let currentUrl = window.location.href;
 let intervalUrl;
+let timeOutDeredify;
 
 let savedStreamers;
 
 // tell the background script o start a new Session
- let toDo = checkUrl();
- toDo();
+// let toDo = checkUrl();
+// toDo();
 
 window.addEventListener("load", function()
 {
   // tell the background script o start a new Session
   let toDo = checkUrl();
   toDo();
-
 });
 
 window.addEventListener("newUrl", function()
@@ -65,9 +65,120 @@ window.addEventListener("newUrl", function()
   currentUrl = window.location.href;
   let toDo = checkUrl();
   toDo();
-
 });
 
+socket.on('connect', function()
+{
+  socket.emit('message', 'HELLO FROM EXTENSION JOOOOOOO  SELCETION');
+});
+
+ socket.on('disconnect', function()
+{
+  console.log("BITCHES");
+});
+
+socket.on("sessionStatus", function(msg) { handleSessionStatus(msg) });
+
+socket.on("rageIncoming", function(msg)
+{
+  console.log("MESSAGE: ", msg)
+  if (msg.link == "%no-rage")
+  {
+    deredify();
+    console.log("NO RAGE");
+  }
+  else
+  {
+    if(regExForStreamerSelection.test(currentUrl))
+    {
+      redify();
+
+      let oldText = S("a[href='" + msg.link + "']  > span.rage-overlay-text");
+      oldText.forEach(item => item.remove());
+
+      showRage(msg.link);
+      let thisStreamer = currentStreamer.get(msg.link);
+      clearTimeout(thisStreamer.timeout);
+      thisStreamer.timeout = setTimeout(function () {
+          unshowRage(msg.link);
+      }, 3000);
+      clearTimeout(timeOutDeredify);
+      timeOutDeredify = setTimeout( function() { deredify() }, 3000);
+
+    }
+    else if(regExForWatchingAStream.test(currentUrl))
+    {
+      console.log("Rage Notification for ", msg.link)
+      console.log("savedStreamers:", savedStreamers);
+      let streamer = savedStreamers.filter(savedStreamer => savedStreamer.name == msg.link)[0];
+      console.log(streamer);
+      console.log(streamer.name, "is raging, creating a notification")
+      showCustomNotification(streamer)
+    }
+  }
+});
+
+function handleSessionStatus(msg)
+{
+  console.log(msg);
+  if (msg == 0)
+  {
+    createSessionStatusOverlay()
+    setSessionStatusOverlayText("Initialising streams...");
+  }
+  else
+  if (msg == 1)
+  {
+    setSessionStatusOverlayText("Downloading streams...");
+  }
+  else
+  if (msg == 2)
+  {
+    setSessionStatusOverlayText("Started analysing!");
+    setTimeout(deleteSessionStatusOverlay, 2000);
+
+  }
+
+}
+function createSessionStatusOverlay()
+{;
+
+  const outerDiv = document.createElement("div");
+  outerDiv.setAttribute("id", "sessionStatusOverlay");
+  outerDiv.classList.add("animated");
+  outerDiv.classList.add("slideInRight");
+
+  const innerDiv = document.createElement("div");
+  innerDiv.setAttribute("id", "sessionStatusInner");
+
+
+  const spinner  = document.createElement("div");
+  spinner.setAttribute("id", "loading");
+
+  const span = document.createElement("span");
+  span.setAttribute("id", "sessionStatusOverlayText");
+
+  outerDiv.appendChild(innerDiv);
+  innerDiv.appendChild(span);
+
+  S("main")[0].appendChild(outerDiv);
+}
+
+function setSessionStatusOverlayText(text)
+{
+  S("#sessionStatusOverlayText")[0].textContent = text;
+}
+
+function deleteSessionStatusOverlay()
+{
+  let list = S("#sessionStatusOverlay, #sessionStatusOverlayText");
+  addClassToList(list, "status-fadeOut");
+
+  setTimeout(function() {
+    S("#sessionStatusOverlay")[0].remove();
+  }, 1500)
+
+}
 
 function initEventsAndIntervalsSelection()
 {
@@ -155,7 +266,6 @@ function checkUrl()
     {
         return toDoWatching;
     }
-
   }
   else
   {
@@ -171,15 +281,7 @@ function toDoSelection()
   addAnimationInit();
   initEventsAndIntervalsSelection();
 
-  socket.on('connect', function()
-  {
-    socket.emit('message', 'HELLO FROM EXTENSION JOOOOOOO  SELCETION');
-  });
 
-   socket.on('disconnect', function()
-  {
-    console.log("BITCHES");
-  });
 }
 
 function toDoWatching()
@@ -189,10 +291,6 @@ function toDoWatching()
   addAnimationInit();
   initEventsAndIntervalsWatching();
 
-  socket.on('connect', function()
-  {
-    socket.emit('message', 'HELLO FROM EXTENSION JOOOOOOO WATCHING');
-  });
 }
 
 function toDoNothing()
@@ -215,21 +313,9 @@ function toDoNothing()
   deredify();
 }
 
-function getData()
-{
-  let list = S(".live-channel-card__channel");
-
-  let fiveFirst = list.slice(0,numberOfConcurrentStreamers);
-  let data = [];
-
-  fiveFirst.forEach(item => data.push(item.getAttribute("href")));
-
-  return data;
-}
-
 function getStreamerData()
 {
-  let list = S(".tw-card");
+  let list = S(".live-channel-card > .tw-card");
   let fiveFirst = list.slice(0,numberOfConcurrentStreamers);
 
   let data = [];
@@ -242,6 +328,7 @@ function getStreamerData()
 function createStreamerData(elem)
 {
   let aTag = elem.firstChild.firstChild.firstChild.firstChild.firstChild;
+
   let streamerName = aTag.href.replace("https://www.twitch.tv", "");
 
   let newStreamer = { "name" : streamerName,
@@ -249,7 +336,7 @@ function createStreamerData(elem)
                       "img" : "https://static-cdn.jtvnw.net/previews-ttv/live_user_" + streamerName.substr(1) + "-320x180.jpg"
   };
 
-  console.log("new Streamer tracked:", newStreamer);
+  // console.log("new Streamer tracked:", newStreamer);
 
   return newStreamer
 }
@@ -284,7 +371,7 @@ function showCustomNotification(streamer)
   }
 
   if(!document.getElementById("notification_" + streamer.name.substring(1)))
-  { 
+  {
     document
       .getElementsByClassName("notification-container")[0]
       .appendChild(createCustomNotification(streamer))
@@ -366,6 +453,8 @@ function addAnimationInit()
 {
   let selector = ".top-nav__menu, .tw-button, .top-nav__nav-link, .tw-button__text, .directory-header__link, .tw-button--hollow, .directory-tabs__item";
   addClassToList( S(selector) , "rage-animation-init" );
+
+  S(".top-nav__menu")[0].classList.add("rage-red-bg");
 }
 
 function redify()
@@ -378,45 +467,6 @@ function deredify()
   selectorsAndClasses.forEach(item => removeClassToList( S(item.selector) , item.className ));
 
 }
-
-socket.on("test", function(msg) {console.log(msg)});
-
-socket.on("rageIncoming", function(msg)
-{
-  console.log("MESSAGE: ", msg)
-  if (msg.link == "%no-rage")
-  {
-    deredify();
-    console.log("NO RAGE");
-  }
-  else
-  {
-    if(regExForStreamerSelection.test(currentUrl))
-    {
-      redify();
-
-      let oldText = S("a[href='" + msg.link + "']  > span.rage-overlay-text");
-      oldText.forEach(item => item.remove());
-
-      showRage(msg.link);
-      let thisStreamer = currentStreamer.get(msg.link);
-      clearTimeout(thisStreamer.timeout);
-      thisStreamer.timeout = setTimeout(function () {
-          unshowRage(msg.link);
-      }, 3000);
-      console.log("RAGE RAGE BABY");
-    }
-    else if(regExForWatchingAStream.test(currentUrl))
-    {
-      console.log("Rage Notification for ", msg.link)
-      console.log("savedStreamers:", savedStreamers);
-      let streamer = savedStreamers.filter(savedStreamer => savedStreamer.name == msg.link)[0];
-      console.log(streamer);
-      console.log(streamer.name, "is raging, creating a notification")
-      showCustomNotification(streamer)
-    }
-  }
-});
 
 function showRage(msg)
 {
@@ -455,7 +505,9 @@ function unshowRage(streamer)
   else
   {
     let divsToDelete = S("a[href='" + streamer + "'] > div.rage-overlay.rage-overlay-style-darker, a[href='" + streamer + "']  > span.rage-overlay-text");
-    divsToDelete.forEach(item => item.remove());
+    addClassToList(divsToDelete, "status-fadeOut");
+    setTimeout(function() { divsToDelete.forEach(item => item.remove()) }, 1500)
+
   }
 }
 
@@ -484,31 +536,3 @@ function getRandomInt(min, max) {
   max = Math.floor(max);
   return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
 }
-function initSession()
-{
-  let message = {"type": "initSession", "sessionId": sessionId, "numberOfConcurrentStreamers": numberOfConcurrentStreamers};
-  chrome.runtime.sendMessage(message, function(response) {
-      console.log(response);
-  });
-}
-
-// function saveCurrentStreamers(streamerList)
-// {
-//   let message = {"type": "updateStreamer", "data": streamerList, "sessionId": sessionId }
-//   chrome.runtime.sendMessage(message, function(response) {
-//       console.log(response);
-//   });
-// }
-//
-// function getSavedStreamer()
-// {
-//   let message = {"type": "getStreamer", "sessionId": sessionId }
-//   chrome.runtime.sendMessage(message, function(response) {
-//       console.log(response);
-//   });
-// }
-
-// first para is the message, the sencond the callback which will be again in the scope of this content script
-// chrome.runtime.sendMessage({text: "hey"}, function(response) {
-//     console.log("Response: ", response);
-// });

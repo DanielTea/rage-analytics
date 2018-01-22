@@ -11,12 +11,35 @@
 
  */
 
- .rage-red-bg {
-  background-color: #FB3640 !important;
+ @keyframes twitch-background-gradient {
+ 	0% {
+ 		background-position: 0%;
+ 	}
+
+ 	100% {
+ 		background-position: 100%;
+ 	}
 }
 
+ .rage-red-bg {
+  background-image: linear-gradient(45deg, #fb3640, #f46036, #4b367c, #4b367c) !important;
+  background-size: 300% !important;
+  background-position: 100% 0% !important;
+  transition: all 0.3s ease !important;
+}
+
+.rage-red-bg-moved {
+  background-position: 0% 0% !important;
+  transition: all 0.5s ease !important;
+}
+
+.move-rage-red-bg {
+  animation: : twitch-background-gradient 5s ease;
+}
+
+
 .rage-red-bg-second {
-  background-color: #EF5D60 !important;
+  background-color: #fb3640 !important;
 
 }
 
@@ -40,6 +63,16 @@
   transition: background-color 0.3s ease,
               border-color 0.3s ease,
               color 0.3s ease;
+}
+
+.rage-hollow {
+    background-color: transparent !important;
+    border: 1px solid #fb3640 !important;
+    color: #fb3640 !important;
+}
+
+.rage-hollow > .rage-color {
+  color: #fb3640 !important;
 }
 
 .rage-overlay {
@@ -124,6 +157,82 @@
 @font-face {
  font-family: "Sharrpe";
  src: url("chrome-extension://__MSG_@@extension_id__/fonts/Sharrpe.ttf");
+}
+
+
+@-webkit-keyframes Gradient {
+	0% {
+		background-position: 0% 50%
+	}
+	50% {
+		background-position: 100% 50%
+	}
+	100% {
+		background-position: 0% 50%
+	}
+}
+
+@-moz-keyframes Gradient {
+	0% {
+		background-position: 0% 50%
+	}
+	50% {
+		background-position: 100% 50%
+	}
+	100% {
+		background-position: 0% 50%
+	}
+}
+
+@keyframes Gradient {
+	0% {
+		background-position: 0% 50%
+	}
+	50% {
+		background-position: 100% 50%
+	}
+	100% {
+		background-position: 0% 50%
+	}
+}
+
+div#sessionStatusOverlay {
+    margin: 10px;
+    margin-right: 0;
+    position: fixed;
+    width: 300px;
+    height: 50px;
+    top: 50px;
+    right: 0;
+
+}
+
+div#sessionStatusInner {
+  box-shadow: 0 0 20px #00000057;
+  transition: opacity 0.5s ease;
+  background: linear-gradient(-45deg, #fb3640, #f46036, #fb3640, #f46036);
+  background-size: 400% 400%;
+  -webkit-animation: Gradient 5s ease infinite;
+  -moz-animation: Gradient 5s ease infinite;
+  animation: Gradient 5s ease infinite;
+  width: 100%;
+  height: 100%;
+}
+
+span#sessionStatusOverlayText {
+    font-size: 29px;
+    font-family: Sharrpe;
+    font-weight: 400;
+    top: 4px;
+    left: 12px;
+    color: white;
+    position: absolute;
+    transition: opacity 1.5s ease;
+}
+
+.status-fadeOut {
+  opacity: 0;
+  transition: opacity 1.5s ease;
 }
 
 

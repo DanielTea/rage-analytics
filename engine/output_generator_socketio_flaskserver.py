@@ -11,7 +11,7 @@ from keras.models import load_model
 from realtime_VideoStreamer import VideoStreamer
 from keras import backend as K
 
-from realtime_RecognitionEngine_textOutput_v2_copy import RecognitionEngine
+from realtime_RecognitionEngine_textOutput_v2 import RecognitionEngine
 import multiprocessing.dummy as mp
 
 # emotion_model_path = './Engine/trained_models/emotion_models/fer2013_mini_XCEPTION.102-0.66.hdf5'
@@ -43,10 +43,9 @@ def handle_analyse(arg1):
 
 @socketio.on('sendStreamer', namespace='/stream')
 def handle_top_five_streamer(arg1):
+
     print("")
-    print("")
-    print('received args: ' + str(arg1))
-    print("")
+    print('RECEIVED: ' + str(arg1))
     print("")
 
     K.clear_session()
@@ -63,7 +62,6 @@ def handle_top_five_streamer(arg1):
     link_list = arg1
     resolution = '360p'
 
-
     video_streamer_list = []
 
     def get_video(link):
@@ -75,9 +73,9 @@ def handle_top_five_streamer(arg1):
     p.close()
     p.join()
 
-#    for link in link_list:
- #       vs = VideoStreamer("https://www.twitch.tv"+str(link), queueSize=128, resolution=resolution, n_frame=15)
-  #      video_streamer_list.append([link, vs])
+    print("")
+    print("STARTING TO ANALYSE " + str(len(link_list)) + " streams")
+    print("")
 
     r_engine = RecognitionEngine(video_streamer_list, emotion_classifier, graph, queueSize=128)
 
@@ -93,10 +91,7 @@ def handle_top_five_streamer(arg1):
             emit('rageIncoming', {'link': str(element[0]), 'confidence': str(element[1])})
 
         else:
-            # emit('heart', {'link': "%no-rage", 'confidence': "0"})
             continue
 
 if __name__ == '__main__':
-    socketio.run(app)
-
-    # app.run(debug = True, host='0.0.0.0', port=8888, passthrough_errors=True, threaded=True)
+    socketio.run(app, port=5000)

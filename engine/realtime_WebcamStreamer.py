@@ -1,14 +1,14 @@
+# import the necessary packages
 from threading import Thread
-from queue import Queue
-
 import cv2
 
+
 class WebcamVideoStream:
-    def __init__(self, src=0, queueSize=128):
+    def __init__(self, src=0):
         # initialize the video camera stream and read the first frame
         # from the stream
         self.stream = cv2.VideoCapture(src)
-        self.Q = Queue(maxsize=queueSize)
+        (self.grabbed, self.frame) = self.stream.read()
 
         # initialize the variable used to indicate if the thread should
         # be stopped
@@ -16,9 +16,7 @@ class WebcamVideoStream:
 
     def start(self):
         # start the thread to read frames from the video stream
-        t = Thread(target=self.update, args=())
-        t.daemon = True
-        t.start()
+        Thread(target=self.update, args=()).start()
         return self
 
     def update(self):
@@ -28,23 +26,12 @@ class WebcamVideoStream:
             if self.stopped:
                 return
 
-            if not self.Q.full():
-                (grabbed, frame) = self.stream.read()
-
-                self.Q.put(frame)
-            else:
-                continue
-
             # otherwise, read the next frame from the stream
-
+            (self.grabbed, self.frame) = self.stream.read()
 
     def read(self):
         # return the frame most recently read
-        return self.Q.get()
-
-    def more(self):
-        # return True if there are still frames in the queue
-        return self.Q.qsize() > 0
+        return self.frame
 
     def stop(self):
         # indicate that the thread should be stopped

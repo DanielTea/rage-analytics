@@ -1,1 +1,2 @@
-ssh -L 8888:localhost:8888 dt024@deepthought.mi.hdm-stuttgart.de
+ssh -L 5000:localhost:5000 dt024@deepthought.mi.hdm-stuttgart.de
+ ssh -L 5000:localhost:5000 -i deeplearn sd092@deepthought.mi.hdm-stuttgart.de
