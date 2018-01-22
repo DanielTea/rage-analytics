@@ -234,3 +234,131 @@ span#sessionStatusOverlayText {
   opacity: 0;
   transition: opacity 1.5s ease;
 }
+
+
+
+/* notification-css v */
+
+.notification-container {
+  width: 100%;
+  height: 200px;
+  background: cyan;
+
+}
+
+.notification-box {
+  float: left;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: white;
+  width: 260px;
+  height: 186px;
+  position: relative;
+  margin: auto;
+  display: inline-block;
+}
+
+.notification-box__top-bar {
+  background-color: rgb(239, 93, 96);
+  display: inline-block;
+  position: relative;
+  width: 100%;
+  height: 40px;
+  margin: auto;
+
+}
+
+.notification-box__top-bar__title {
+  display: inline-block;
+  position: absolute;
+  width: 90%;
+  height: 15px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 14px;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+  padding-left: 5px;
+}
+
+.button-fig{
+  display: inline-block;
+  width: 18px;
+  margin: auto;
+}
+
+.x-button {
+  display: inline-block;
+  width: 20px;
+  height: 18px;
+  fill: white;
+  position: absolute;
+  right: 3px;
+  top: 11px
+}
+
+.notification-box__title {
+  display: inline-block;
+  font-weight: 600;
+  position: absolute;
+  margin: auto;
+}
+
+.notification-box__description {
+  display: inline-block;
+  position: absolute;
+  margin: auto;
+}
+
+
+.notification-box__body {
+  top: -5px;
+  display: inline-block;
+  position: relative;
+  height: 146px;
+  line-height: 146px;
+  width: 100%;
+  z-index: 9999;
+  bottom: 0;
+  margin: auto;
+}
+
+.notification-box__overlay {
+  display: inline-block;
+  width: 100%;
+  height: 146px;
+  opacity: 0.3;
+  background-color: rgb(239, 93, 96);
+  position: absolute;
+  margin: auto;
+}
+
+.notification-box__rage{
+  display: inline-block;
+  font-family: 'youmurdererbb_reg', cursive;
+  position: absolute;
+  font-size: 40px;
+  width: 100%;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+  color: white;
+  z-index: 9999;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.notification-box__image {
+  display: inline-block;
+  height: 100%;
+  position: absolute;
+  margin: auto;
+}
+
+
+/* notification-css ^*/

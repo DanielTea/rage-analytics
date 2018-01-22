@@ -33,6 +33,13 @@ const overlayMessages = {"rage": [  "don't cry, NAME",
 const streamerSelection = "SELECTION";
 const streamerWatching = "WATCHING";
 
+const stringForStreamerSelection = /^https:\/\/www\.twitch\.tv\/directory\/game\/[\w%']{3,}$/;
+const stringForWatchingAStream = /^https:\/\/www\.twitch\.tv\/[\w%']{3,}$/;
+const subdomainsToExclude = ["directory"];
+
+const regExForStreamerSelection = new RegExp(stringForStreamerSelection);
+const regExForWatchingAStream = new RegExp(stringForWatchingAStream);
+
 let currentStreamer = new Map();
 let activeGame = "";
 
@@ -40,9 +47,11 @@ let currentUrl = window.location.href;
 let intervalUrl;
 let timeOutDeredify;
 
-// // tell the background script o start a new Session
-//  let toDo = checkUrl();
-//  toDo();
+let savedStreamers;
+
+// tell the background script o start a new Session
+// let toDo = checkUrl();
+// toDo();
 
 window.addEventListener("load", function()
 {
@@ -72,23 +81,41 @@ socket.on("sessionStatus", function(msg) { handleSessionStatus(msg) });
 
 socket.on("rageIncoming", function(msg)
 {
-  console.log(msg);
+  console.log("MESSAGE: ", msg)
+  if (msg.link == "%no-rage")
+  {
+    deredify();
+    console.log("NO RAGE");
+  }
+  else
+  {
+    if(regExForStreamerSelection.test(currentUrl))
+    {
+      redify();
 
-  redify();
+      let oldText = S("a[href='" + msg.link + "']  > span.rage-overlay-text");
+      oldText.forEach(item => item.remove());
 
-  let oldText = S("a[href='" + msg.link + "']  > span.rage-overlay-text");
-  oldText.forEach(item => item.remove());
+      showRage(msg.link);
+      let thisStreamer = currentStreamer.get(msg.link);
+      clearTimeout(thisStreamer.timeout);
+      thisStreamer.timeout = setTimeout(function () {
+          unshowRage(msg.link);
+      }, 3000);
+      clearTimeout(timeOutDeredify);
+      timeOutDeredify = setTimeout( function() { deredify() }, 3000);
 
-  showRage(msg.link);
-  let thisStreamer = currentStreamer.get(msg.link);
-  clearTimeout(thisStreamer.timeout);
-  thisStreamer.timeout = setTimeout(function () {
-      unshowRage(msg.link);
-  }, 3000);
-
-  clearTimeout(timeOutDeredify);
-  timeOutDeredify = setTimeout( function() { deredify() }, 3000);
-
+    }
+    else if(regExForWatchingAStream.test(currentUrl))
+    {
+      console.log("Rage Notification for ", msg.link)
+      console.log("savedStreamers:", savedStreamers);
+      let streamer = savedStreamers.filter(savedStreamer => savedStreamer.name == msg.link)[0];
+      console.log(streamer);
+      console.log(streamer.name, "is raging, creating a notification")
+      showCustomNotification(streamer)
+    }
+  }
 });
 
 function handleSessionStatus(msg)
@@ -175,7 +202,7 @@ function initEventsAndIntervalsSelection()
       let streamerList = getStreamerData();
       let streamerNameList = streamerList.map(streamer => streamer.name)
 
-      console.log("send data " + streamerNameList);
+      console.log("send data for selection " + streamerNameList);
       console.log(streamerList.length);
 
       socket.emit('sendStreamer', streamerNameList);
@@ -204,16 +231,22 @@ function initEventsAndIntervalsWatching()
     }
   }, heartbeatTime);
 
+  // send saved Streamer Data in background
+  setTimeout( function() {
+
+    let streamerNameList = savedStreamers.map(streamer => streamer.name)
+
+    console.log("send data for watching " + streamerNameList);
+    console.log(savedStreamers.length);
+
+    socket.emit('sendStreamer', streamerNameList);
+
+    streamerNameList.forEach(streamer => currentStreamer.set(streamer, {"timeout": ""}));
+  }, heartbeatTime);
 }
 
 function checkUrl()
 {
-  const stringForStreamerSelection = /^https:\/\/www\.twitch\.tv\/directory\/game\/[\w%']{3,}$/;
-  const stringForWatchingAStream = /^https:\/\/www\.twitch\.tv\/[\w%']{3,}$/;
-  const subdomainsToExculde = ["directory"]
-
-  const regExForStreamerSelection = new RegExp(stringForStreamerSelection);
-  const regExForWatchingAStream = new RegExp(stringForWatchingAStream);
 
   if (regExForStreamerSelection.test(currentUrl))
   {
@@ -225,7 +258,7 @@ function checkUrl()
     let splittedUrl = currentUrl.split("/");
     let subdomain = splittedUrl[splittedUrl.length-1];
 
-    if (subdomainsToExculde.includes(subdomain))
+    if (subdomainsToExclude.includes(subdomain))
     {
       return toDoNothing;
     }
@@ -244,7 +277,7 @@ function toDoSelection()
 {
   console.log("STREAMER SELECTION");
 
-  // initSession();
+  //initSession();
   addAnimationInit();
   initEventsAndIntervalsSelection();
 
@@ -288,6 +321,7 @@ function getStreamerData()
   let data = [];
   fiveFirst.forEach(item => data.push(createStreamerData(item)));
 
+  savedStreamers = data;
   return data;
 }
 
@@ -306,6 +340,114 @@ function createStreamerData(elem)
 
   return newStreamer
 }
+
+
+function showRageNotification(streamer)
+{
+  let notification = new Notification('Rage incoming!', {
+    icon: streamer.img,
+    body: streamer.name.substr(1) + " is raging! Check it out here",
+  });
+
+  notification.onclick = function () {
+    window.open("https://www.twitch.tv" + streamerName);
+  };
+}
+
+function insertNotificationContainer()
+{
+  let notificationContainer = document.createElement("div");
+  notificationContainer.className = "notification-container";
+  let infoBar = document.getElementsByClassName("channel-info-bar")[0];
+  infoBar.parentNode.insertBefore(notificationContainer, infoBar.nextSibling);
+}
+
+function showCustomNotification(streamer)
+{
+
+  if(document.getElementsByClassName("notification-container").length === 0)
+  {
+    insertNotificationContainer();
+  }
+
+  if(!document.getElementById("notification_" + streamer.name.substring(1)))
+  {
+    document
+      .getElementsByClassName("notification-container")[0]
+      .appendChild(createCustomNotification(streamer))
+  }
+}
+
+function removeCustomNotification(streamerName)
+{
+    console.log("removing element " + "notification_" + streamerName);
+    document.getElementById("notification_" + streamerName).remove();
+}
+
+
+function createCustomNotification(streamer)
+{
+    let streamerName = streamer.name.substring(1);
+    let notification = document.createElement("div");
+    notification.className = "notification-box";
+    notification.id = "notification_" + streamerName;
+
+    // ---- Top Bar ----
+
+    let topBar = document.createElement("div");
+    topBar.className = "notification-box__top-bar";
+
+    let title = document.createElement("span");
+    title.className = "notification-box__top-bar__title";
+    title.innerHTML = streamer.title;
+
+    let xButton = document.createElement("span");
+    xButton.className = "x-button";
+    xButton.innerHTML = `
+        <svg class="button-svg"      
+               width="18px" 
+               height="18px" 
+               version="1.1" 
+               viewBox="0 0 16 16"
+               onclick=removeCustomNotification("` + streamerName +`")>
+            <path d="M8 6.586L3.757 2.343 2.343 3.757 6.586 8l-4.243 4.243 1.414 1.414L8 9.414l4.243 4.243 1.414-1.414L9.414 8l4.243-4.243-1.414-1.414" 
+                  fill-rule="evenodd">       
+            </path>
+         </svg>
+    `;
+
+    // ---- Body ----
+
+    let notificationBody = document.createElement("div");
+    notificationBody.className = "notification-box__body";
+
+    let streamImg = document.createElement("img");
+    streamImg.className = "notification-box__image";
+    streamImg.src = "https://static-cdn.jtvnw.net/previews-ttv/live_user_" + streamerName + "-320x180.jpg";
+
+    let overlay = document.createElement("div");
+    overlay.className = "notification-box__overlay";
+
+    let rageText = document.createElement("span");
+    rageText.className = "notification-box__rage";
+    rageText.innerHTML = "RAGE!";
+
+    // ---- Append Children ----
+
+    notificationBody.appendChild(streamImg);
+    notificationBody.appendChild(overlay);
+    notificationBody.appendChild(rageText);
+
+    topBar.appendChild(title);
+    topBar.appendChild(xButton);
+
+    notification.appendChild(topBar);
+    notification.appendChild(notificationBody);
+
+    return notification
+
+}
+
 
 function addAnimationInit()
 {
@@ -394,31 +536,3 @@ function getRandomInt(min, max) {
   max = Math.floor(max);
   return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
 }
-// function initSession()
-// {
-//   let message = {"type": "initSession", "sessionId": sessionId, "numberOfConcurrentStreamers": numberOfConcurrentStreamers};
-//   chrome.runtime.sendMessage(message, function(response) {
-//       console.log(response);
-//   });
-// }
-
-// function saveCurrentStreamers(streamerList)
-// {
-//   let message = {"type": "updateStreamer", "data": streamerList, "sessionId": sessionId }
-//   chrome.runtime.sendMessage(message, function(response) {
-//       console.log(response);
-//   });
-// }
-//
-// function getSavedStreamer()
-// {
-//   let message = {"type": "getStreamer", "sessionId": sessionId }
-//   chrome.runtime.sendMessage(message, function(response) {
-//       console.log(response);
-//   });
-// }
-
-// first para is the message, the sencond the callback which will be again in the scope of this content script
-// chrome.runtime.sendMessage({text: "hey"}, function(response) {
-//     console.log("Response: ", response);
-// });
