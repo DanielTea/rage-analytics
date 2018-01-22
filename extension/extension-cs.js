@@ -167,7 +167,7 @@ function toDoSelection()
 {
   console.log("STREAMER SELECTION");
 
-  initSession();
+  //initSession();
   addAnimationInit();
   initEventsAndIntervalsSelection();
 
