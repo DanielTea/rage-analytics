@@ -34,7 +34,7 @@
 }
 
 .move-rage-red-bg {
-  animation: : twitch-background-gradient 5s ease;
+  animation:twitch-background-gradient 5s ease;
 }
 
 
@@ -276,10 +276,6 @@ span#sessionStatusOverlayText {
   overflow: hidden;
   text-overflow: ellipsis;
   font-size: 14px;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
   margin: auto;
   padding-left: 5px;
 }
@@ -322,7 +318,6 @@ span#sessionStatusOverlayText {
   line-height: 146px;
   width: 100%;
   z-index: 9999;
-  bottom: 0;
   margin: auto;
 }
 
@@ -342,10 +337,6 @@ span#sessionStatusOverlayText {
   position: absolute;
   font-size: 40px;
   width: 100%;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
   margin: auto;
   color: white;
   z-index: 9999;
