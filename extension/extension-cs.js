@@ -74,7 +74,7 @@ socket.on('connect', function()
 
  socket.on('disconnect', function()
 {
-  console.log("BITCHES");
+  console.log("Disconnected");
 });
 
 socket.on("sessionStatus", function(msg) { handleSessionStatus(msg) });
@@ -82,7 +82,7 @@ socket.on("sessionStatus", function(msg) { handleSessionStatus(msg) });
 socket.on("rageIncoming", function(msg)
 {
   console.log("MESSAGE: ", msg)
-  if (msg.link == "%no-rage")
+  if (msg.link == "%no-rage" || msg.confidence < 0.6)
   {
     deredify();
     console.log("NO RAGE");
@@ -231,18 +231,20 @@ function initEventsAndIntervalsWatching()
     }
   }, heartbeatTime);
 
+  console.log("initEventsAndIntervalsWatching");s
+
   // send saved Streamer Data in background
-  setTimeout( function() {
-
-    let streamerNameList = savedStreamers.map(streamer => streamer.name)
-
-    console.log("send data for watching " + streamerNameList);
-    console.log(savedStreamers.length);
-
-    socket.emit('sendStreamer', streamerNameList);
-
-    streamerNameList.forEach(streamer => currentStreamer.set(streamer, {"timeout": ""}));
-  }, heartbeatTime);
+  // setTimeout( function() {
+  //
+  //   let streamerNameList = savedStreamers.map(streamer => streamer.name)
+  //
+  //   console.log("send data for watching " + streamerNameList);
+  //   console.log(savedStreamers.length);
+  //
+  //   socket.emit('sendStreamer', streamerNameList);
+  //
+  //   streamerNameList.forEach(streamer => currentStreamer.set(streamer, {"timeout": ""}));
+  // }, heartbeatTime);
 }
 
 function checkUrl()
@@ -290,6 +292,8 @@ function toDoWatching()
 
   addAnimationInit();
   initEventsAndIntervalsWatching();
+
+
 
 }
 
@@ -370,7 +374,9 @@ function showCustomNotification(streamer)
     insertNotificationContainer();
   }
 
-  if(!document.getElementById("notification_" + streamer.name.substring(1)))
+  let streamerAlreadyRepresented = document.getElementById("notification_" + streamer.name.substring(1));
+  let numberOfNotifications = document.getElementsByClassName("notification-box").length;
+  if(!streamerAlreadyRepresented && numberOfNotifications <  3)
   {
     document
       .getElementsByClassName("notification-container")[0]
@@ -388,6 +394,9 @@ function removeCustomNotification(streamerName)
 function createCustomNotification(streamer)
 {
     let streamerName = streamer.name.substring(1);
+    let wrapper = document.createElement("div");
+    wrapper.className = "notification-box-wrapper";
+
     let notification = document.createElement("div");
     notification.className = "notification-box";
     notification.id = "notification_" + streamerName;
@@ -409,7 +418,7 @@ function createCustomNotification(streamer)
                height="18px" 
                version="1.1" 
                viewBox="0 0 16 16"
-               onclick=removeCustomNotification("` + streamerName +`")>
+               onclick=document.getElementById("notification_` + streamerName + `").remove()>
             <path d="M8 6.586L3.757 2.343 2.343 3.757 6.586 8l-4.243 4.243 1.414 1.414L8 9.414l4.243 4.243 1.414-1.414L9.414 8l4.243-4.243-1.414-1.414" 
                   fill-rule="evenodd">       
             </path>
@@ -444,7 +453,9 @@ function createCustomNotification(streamer)
     notification.appendChild(topBar);
     notification.appendChild(notificationBody);
 
-    return notification
+    wrapper.appendChild(notification);
+
+    return wrapper;
 
 }
 
