@@ -240,13 +240,18 @@ span#sessionStatusOverlayText {
 /* notification-css v */
 
 .notification-container {
-  width: 1040px;
-  height: 200px;
-  padding: 10px 0 0 20px;
+  z-index: 9999;
+  width: 290px;
+  height: unset;
+  position: absolute;
+  top: 60px;
+  right: 0;
+  padding: unset;
+  margin: unset;
 }
 
 .notification-box-wrapper {
-    overflow: auto;
+    margin: 5px 10px;
     width: unset;
     float: left;
     padding-left: 10px;
@@ -261,6 +266,7 @@ span#sessionStatusOverlayText {
   position: relative;
   margin: auto;
   display: inline-block;
+  box-shadow: 1px 2px 2px rgba(239, 93, 96, 0.4);
 }
 
 .notification-box__top-bar {
@@ -280,11 +286,11 @@ span#sessionStatusOverlayText {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-size: 14px;
+  font-size: 1.4rem;
   margin: 0;
   vertical-align: middle;
-  padding-left: 5px;
-}
+  padding-left: 1rem;
+  }
 
 .button-fig{
   display: inline-block;
