@@ -5,8 +5,6 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 import tensorflow as tf
 from flask import stream_with_context, request, Response, Flask
 from flask_socketio import SocketIO, send, emit
-from realtime_VideoStreamer import VideoStreamer
-from realtime_RecognitionEngine_textOutput import RecognitionEngine
 from keras.models import load_model
 from realtime_VideoStreamer import VideoStreamer
 from keras import backend as K

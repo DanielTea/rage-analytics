@@ -38,32 +38,14 @@ emotion_window = []
 # starting video streaming
 cv2.namedWindow('window_frame')
 
-vs = WebcamVideoStream(src=0).start()
-
-# # loop over some frames...this time using the threaded stream
-# while True:
-#     # grab the frame from the threaded video stream and resize it
-#     # to have a maximum width of 400 pixels
-#     frame = vs.read()
-#     frame = imutils.resize(frame, width=400)
-#
-#     # check to see if the frame should be displayed to our screen
-#
-#     cv2.imshow("Frame", frame)
-#     key = cv2.waitKey(1) & 0xFF
-#
-#
-#
-# # do a bit of cleanup
-# cv2.destroyAllWindows()
-# vs.stop()
+vs = WebcamVideoStream(src=1).start()
 
 while True:
 
     # if vs.more():
 
     bgr_image = vs.read()
-    bgr_image= imutils.resize(bgr_image, width=700)
+    bgr_image= imutils.resize(bgr_image, width=1700)
 
     # sleep(1/30)
 
@@ -111,15 +93,19 @@ while True:
             continue
 
         if emotion_text == 'angry':
-            color = emotion_probability * np.asarray((255, 0, 0))
-        elif emotion_text == 'sad':
-            color = emotion_probability * np.asarray((0, 0, 255))
+            color = emotion_probability * np.asarray((186,18,0))
+        elif emotion_text == 'disgust':
+            color = emotion_probability * np.asarray((126,105,88))
+        elif emotion_text == 'fear':
+            color = emotion_probability * np.asarray((255, 255, 255))
         elif emotion_text == 'happy':
-            color = emotion_probability * np.asarray((255, 255, 0))
+            color = emotion_probability * np.asarray((255,186,8))
+        elif emotion_text == 'sad':
+            color = emotion_probability * np.asarray((45,114,143))
         elif emotion_text == 'surprise':
-            color = emotion_probability * np.asarray((0, 255, 255))
-        else:
-            color = emotion_probability * np.asarray((0, 255, 0))
+            color = emotion_probability * np.asarray((136,73,143))
+        elif emotion_text == 'neutral':
+            color = emotion_probability * np.asarray((83,221,108))
 
         color = color.astype(int)
         color = color.tolist()
@@ -128,10 +114,11 @@ while True:
         draw_text(face_coordinates, rgb_image, emotion_mode,
                   color, 0, -45, 1, 1)
 
-        bgr_image = cv2.cvtColor(rgb_image, cv2.COLOR_RGB2BGR)
-        cv2.imshow('window_frame', bgr_image)
 
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            print("end")
-            break
+    bgr_image = cv2.cvtColor(rgb_image, cv2.COLOR_RGB2BGR)
+    cv2.imshow('window_frame', bgr_image)
+
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        print("end")
+        break
 

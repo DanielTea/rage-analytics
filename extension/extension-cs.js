@@ -15,7 +15,7 @@ const selectorsAndClasses =
   ];
 
 const sessionId = Date.now();
-const numberOfConcurrentStreamers = 50;
+const numberOfConcurrentStreamers = 10;
 
 const overlayMessages = {"rage": [  "don't cry, NAME",
                                     "too bad,  NAME",

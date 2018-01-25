@@ -15,7 +15,7 @@
     <link type="text/css" rel="stylesheet" href="https://pubnub.github.io/eon/v/eon/1.0.0/eon.css"/>
      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 </head>
-<body>
+<body background="black">
 
 <p>This is the latest output: <span id="latest"></span></p>
 
@@ -39,7 +39,9 @@
       generate: {
         bindto: '#chart',
         data: {
+
           labels: true,
+          colors: {"Angry":"#BA1200","Disgust":"","Fear":"#ffffff","Happy":"#FFBA08","Sad":"#2D728F", "Surprise":"#88498F","Neutral":"#53DD6C"},
           type: 'bar'
         },
         bar: {
@@ -64,6 +66,7 @@
                 message: {
                   eon: {
                     'Angry': parseFloat(data.angry),
+                    'Disgust': parseFloat(data.disgust),
                     'Fear': parseFloat(data.fear),
                     'Happy': parseFloat(data.happy),
                     'Sad': parseFloat(data.sad),
