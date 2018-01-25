@@ -1,5 +1,6 @@
 var socket = io.connect('http://127.0.0.1:5000/stream');
 
+const confidenceThreshold = 0.0;
 const heartbeatTime = 3000;
 const overlayStyle = "rage-overlay-style-darker";
 const selectorsAndClasses =
@@ -50,14 +51,15 @@ let timeOutDeredify;
 let savedStreamers;
 
 // tell the background script o start a new Session
-// let toDo = checkUrl();
-// toDo();
+let toDo = checkUrl();
+toDo();
 
 window.addEventListener("load", function()
 {
   // tell the background script o start a new Session
   let toDo = checkUrl();
   toDo();
+  console.log("WindowLoadEvent")
 });
 
 window.addEventListener("newUrl", function()
@@ -82,15 +84,11 @@ socket.on("sessionStatus", function(msg) { handleSessionStatus(msg) });
 socket.on("rageIncoming", function(msg)
 {
   console.log("MESSAGE: ", msg)
-  if (msg.link == "%no-rage" || msg.confidence < 0.6)
-  {
-    deredify();
-    console.log("NO RAGE");
-  }
-  else
+  if (msg.confidence > confidenceThreshold)
   {
     if(regExForStreamerSelection.test(currentUrl))
     {
+      console.log("RAGE INCOMING SELECTION");
       redify();
 
       let oldText = S("a[href='" + msg.link + "']  > span.rage-overlay-text");
@@ -108,10 +106,8 @@ socket.on("rageIncoming", function(msg)
     }
     else if(regExForWatchingAStream.test(currentUrl))
     {
-      console.log("Rage Notification for ", msg.link)
-      console.log("savedStreamers:", savedStreamers);
+      console.log("RAGE INCOMING WATCHING " + msg.link);
       let streamer = savedStreamers.filter(savedStreamer => savedStreamer.name == msg.link)[0];
-      console.log(streamer);
       console.log(streamer.name, "is raging, creating a notification")
       showCustomNotification(streamer)
     }
@@ -136,10 +132,9 @@ function handleSessionStatus(msg)
   {
     setSessionStatusOverlayText("Started analysing!");
     setTimeout(deleteSessionStatusOverlay, 2000);
-
   }
-
 }
+
 function createSessionStatusOverlay()
 {;
 
@@ -195,8 +190,14 @@ function initEventsAndIntervalsSelection()
     }
   }, heartbeatTime);
 
+  console.log("ACTIVE GAME " + activeGame);
+  console.log("URL         " + currentUrl);
+
   if (activeGame != currentUrl)
   {
+    console.log("new game")
+    activeGame = currentUrl;
+
     // For getting getting and sending the data;
     setTimeout( function() {
       let streamerList = getStreamerData();
@@ -231,20 +232,7 @@ function initEventsAndIntervalsWatching()
     }
   }, heartbeatTime);
 
-  console.log("initEventsAndIntervalsWatching");s
-
-  // send saved Streamer Data in background
-  // setTimeout( function() {
-  //
-  //   let streamerNameList = savedStreamers.map(streamer => streamer.name)
-  //
-  //   console.log("send data for watching " + streamerNameList);
-  //   console.log(savedStreamers.length);
-  //
-  //   socket.emit('sendStreamer', streamerNameList);
-  //
-  //   streamerNameList.forEach(streamer => currentStreamer.set(streamer, {"timeout": ""}));
-  // }, heartbeatTime);
+  console.log("initEventsAndIntervalsWatching");
 }
 
 function checkUrl()
@@ -278,7 +266,6 @@ function checkUrl()
 function toDoSelection()
 {
   console.log("STREAMER SELECTION");
-
   //initSession();
   addAnimationInit();
   initEventsAndIntervalsSelection();
@@ -300,6 +287,7 @@ function toDoWatching()
 function toDoNothing()
 {
   console.log("LAME! NOTHING TO DO");
+  activeGame = null;
 
   clearInterval(intervalUrl);
 
@@ -348,6 +336,7 @@ function createStreamerData(elem)
 
 function showRageNotification(streamer)
 {
+  console.log("showing RAGE notifications");
   let notification = new Notification('Rage incoming!', {
     icon: streamer.img,
     body: streamer.name.substr(1) + " is raging! Check it out here",
@@ -363,12 +352,19 @@ function insertNotificationContainer()
   let notificationContainer = document.createElement("div");
   notificationContainer.className = "notification-container";
   let infoBar = document.getElementsByClassName("channel-info-bar")[0];
-  infoBar.parentNode.insertBefore(notificationContainer, infoBar.nextSibling);
+  if (infoBar != null)
+  {
+    infoBar.parentNode.insertBefore(notificationContainer, infoBar.nextSibling);
+  }
+  else
+  {
+    console.log("infobar doesnt exists anymore")
+  }
+
 }
 
 function showCustomNotification(streamer)
 {
-
   if(document.getElementsByClassName("notification-container").length === 0)
   {
     insertNotificationContainer();
@@ -378,9 +374,16 @@ function showCustomNotification(streamer)
   let numberOfNotifications = document.getElementsByClassName("notification-box").length;
   if(!streamerAlreadyRepresented && numberOfNotifications <  3)
   {
-    document
-      .getElementsByClassName("notification-container")[0]
-      .appendChild(createCustomNotification(streamer))
+    let container  = S(".notification-container")[0]
+    if (container != null)
+    {
+      container.appendChild(createCustomNotification(streamer));
+    }
+    else
+    {
+      console.log("container doesnt exists anymore")
+    }
+
   }
 }
 
@@ -394,6 +397,7 @@ function removeCustomNotification(streamerName)
 function createCustomNotification(streamer)
 {
     let streamerName = streamer.name.substring(1);
+    console.log("creating notification for " + streamerName);
     let wrapper = document.createElement("div");
     wrapper.className = "notification-box-wrapper";
 
@@ -413,14 +417,14 @@ function createCustomNotification(streamer)
     let xButton = document.createElement("span");
     xButton.className = "x-button";
     xButton.innerHTML = `
-        <svg class="button-svg"      
-               width="18px" 
-               height="18px" 
-               version="1.1" 
+        <svg class="button-svg"
+               width="18px"
+               height="18px"
+               version="1.1"
                viewBox="0 0 16 16"
                onclick=document.getElementById("notification_` + streamerName + `").remove()>
-            <path d="M8 6.586L3.757 2.343 2.343 3.757 6.586 8l-4.243 4.243 1.414 1.414L8 9.414l4.243 4.243 1.414-1.414L9.414 8l4.243-4.243-1.414-1.414" 
-                  fill-rule="evenodd">       
+            <path d="M8 6.586L3.757 2.343 2.343 3.757 6.586 8l-4.243 4.243 1.414 1.414L8 9.414l4.243 4.243 1.414-1.414L9.414 8l4.243-4.243-1.414-1.414"
+                  fill-rule="evenodd">
             </path>
          </svg>
     `;
@@ -500,9 +504,11 @@ function showRage(msg)
 
   overlayText.classList.add("shake");
 
-  rageItem.appendChild(overlayDiv);
-  rageItem.appendChild(overlayText);
-
+  if(rageItem != null)
+  {
+    rageItem.appendChild(overlayDiv);
+    rageItem.appendChild(overlayText);
+  }
 }
 
 function unshowRage(streamer)
