@@ -197,6 +197,7 @@
 }
 
 div#sessionStatusOverlay {
+  z-index: 9999;
     margin: 10px;
     margin-right: 0;
     position: fixed;
@@ -258,6 +259,7 @@ span#sessionStatusOverlayText {
 }
 
 .notification-box {
+  cursor: pointer;
   float: left;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   color: white;

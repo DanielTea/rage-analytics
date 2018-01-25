@@ -15,7 +15,7 @@ const selectorsAndClasses =
   ];
 
 const sessionId = Date.now();
-const numberOfConcurrentStreamers = 10;
+const numberOfConcurrentStreamers = 200;
 
 const overlayMessages = {"rage": [  "don't cry, NAME",
                                     "too bad,  NAME",
@@ -41,14 +41,16 @@ const subdomainsToExclude = ["directory"];
 const regExForStreamerSelection = new RegExp(stringForStreamerSelection);
 const regExForWatchingAStream = new RegExp(stringForWatchingAStream);
 
+
 let currentStreamer = new Map();
-let activeGame = "";
+let streamerShownWhileWatching = new Map();
+
 
 let currentUrl = window.location.href;
+let activeGame = "";
+
 let intervalUrl;
 let timeOutDeredify;
-
-let savedStreamers;
 
 // tell the background script o start a new Session
 let toDo = checkUrl();
@@ -107,7 +109,7 @@ socket.on("rageIncoming", function(msg)
     else if(regExForWatchingAStream.test(currentUrl))
     {
       console.log("RAGE INCOMING WATCHING " + msg.link);
-      let streamer = savedStreamers.filter(savedStreamer => savedStreamer.name == msg.link)[0];
+      let streamer = currentStreamer.get(msg.link).streamer
       console.log(streamer.name, "is raging, creating a notification")
       showCustomNotification(streamer)
     }
@@ -208,8 +210,8 @@ function initEventsAndIntervalsSelection()
 
       socket.emit('sendStreamer', streamerNameList);
 
-      streamerNameList.forEach(streamer => currentStreamer.set(streamer, {"timeout": ""}));
-    }, heartbeatTime);
+      streamerList.forEach(streamer => currentStreamer.set(streamer.name, {"streamer": streamer, "timeout": ""}));
+    },heartbeatTime);
   }
   else
   {
@@ -313,7 +315,6 @@ function getStreamerData()
   let data = [];
   fiveFirst.forEach(item => data.push(createStreamerData(item)));
 
-  savedStreamers = data;
   return data;
 }
 
@@ -365,32 +366,48 @@ function insertNotificationContainer()
 
 function showCustomNotification(streamer)
 {
-  if(document.getElementsByClassName("notification-container").length === 0)
+  if(streamerShownWhileWatching.size == 0)
   {
     insertNotificationContainer();
   }
 
-  let streamerAlreadyRepresented = document.getElementById("notification_" + streamer.name.substring(1));
-  let numberOfNotifications = document.getElementsByClassName("notification-box").length;
-  if(!streamerAlreadyRepresented && numberOfNotifications <  3)
+  let numberOfNotifications = streamerShownWhileWatching.size
+
+  if(!streamerShownWhileWatching.has(streamer.name) && numberOfNotifications <  3)
   {
     let container  = S(".notification-container")[0]
     if (container != null)
     {
-      container.appendChild(createCustomNotification(streamer));
+      let notification = createCustomNotification(streamer);
+      let timeout = removeCustomNotification(streamer.name)
+
+      streamerShownWhileWatching.set(streamer.name, {"notification": notification, "timeout": timeout});
+      container.appendChild(notification);
     }
     else
     {
       console.log("container doesnt exists anymore")
     }
+  }
+  else
+  if (streamerShownWhileWatching.has(streamer.name))
+  {
+    clearTimeout(streamerShownWhileWatching.get(streamer.name).timeout);
+    let timeout = removeCustomNotification(streamer.name)
+    streamerShownWhileWatching.get(streamer.name).timeout = timeout;
 
   }
 }
 
 function removeCustomNotification(streamerName)
 {
-    console.log("removing element " + "notification_" + streamerName);
-    document.getElementById("notification_" + streamerName).remove();
+  return setTimeout(function () {
+    streamerShownWhileWatching.get(streamerName).notification.classList.add("status-fadeOut");
+    setTimeout(function() {
+      streamerShownWhileWatching.get(streamerName).notification.remove();
+      streamerShownWhileWatching.delete(streamerName);
+    }, 1500)
+  }, 5000);
 }
 
 
@@ -402,7 +419,7 @@ function createCustomNotification(streamer)
     wrapper.className = "notification-box-wrapper";
 
     let notification = document.createElement("div");
-    notification.className = "notification-box";
+    notification.className = "notification-box animated slideInRight";
     notification.id = "notification_" + streamerName;
 
     // ---- Top Bar ----
@@ -456,6 +473,12 @@ function createCustomNotification(streamer)
 
     notification.appendChild(topBar);
     notification.appendChild(notificationBody);
+
+    notification.addEventListener("click", function() {
+        location.href = "https://www.twitch.tv/" + streamerName;
+        let event = new CustomEvent('newUrl', {});
+        window.dispatchEvent(event);
+    });
 
     wrapper.appendChild(notification);
 
