@@ -12,9 +12,9 @@ from keras import backend as K
 from realtime_RecognitionEngine_textOutput_v2 import RecognitionEngine
 import multiprocessing.dummy as mp
 
-# emotion_model_path = './Engine/trained_models/emotion_models/fer2013_mini_XCEPTION.102-0.66.hdf5'
-# emotion_classifier = load_model(emotion_model_path, compile=False)
-# emotion_classifier._make_predict_function()
+emotion_model_path = './Engine/trained_models/emotion_models/fer2013_mini_XCEPTION.102-0.66.hdf5'
+emotion_classifier = load_model(emotion_model_path, compile=False)
+emotion_classifier._make_predict_function()
 # graph = tf.get_default_graph()
 
 app = Flask(__name__)
@@ -46,13 +46,13 @@ def handle_top_five_streamer(arg1):
     print('RECEIVED: ' + str(arg1))
     print("")
 
-    K.clear_session()
+    # K.clear_session()
     emit('sessionStatus', '0') # deleted network
 
     tf.reset_default_graph()
-    emotion_model_path = './Engine/trained_models/emotion_models/fer2013_mini_XCEPTION.102-0.66.hdf5'
-    emotion_classifier = load_model(emotion_model_path, compile=False)
-    emotion_classifier._make_predict_function()
+    # emotion_model_path = './Engine/trained_models/emotion_models/fer2013_mini_XCEPTION.102-0.66.hdf5'
+    # emotion_classifier = load_model(emotion_model_path, compile=False)
+    # emotion_classifier._make_predict_function()
     graph = tf.get_default_graph()
 
     emit('sessionStatus', '1')  # created Network
@@ -92,4 +92,4 @@ def handle_top_five_streamer(arg1):
             continue
 
 if __name__ == '__main__':
-    socketio.run(app, port=5000)
+    socketio.run(app, port=5000, debug=False)
