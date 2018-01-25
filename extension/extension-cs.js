@@ -287,7 +287,7 @@ function toDoWatching()
 function toDoNothing()
 {
   console.log("LAME! NOTHING TO DO");
-  activeGame = null;
+  activeGame = "";
 
   clearInterval(intervalUrl);
 
@@ -351,10 +351,10 @@ function insertNotificationContainer()
 {
   let notificationContainer = document.createElement("div");
   notificationContainer.className = "notification-container";
-  let infoBar = document.getElementsByClassName("channel-info-bar")[0];
-  if (infoBar != null)
+  let parentForNotificationContainer = S("body")[0];
+  if (parentForNotificationContainer != null)
   {
-    infoBar.parentNode.insertBefore(notificationContainer, infoBar.nextSibling);
+    parentForNotificationContainer.appendChild(notificationContainer);
   }
   else
   {
