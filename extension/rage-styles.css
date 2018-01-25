@@ -259,6 +259,7 @@ span#sessionStatusOverlayText {
 }
 
 .notification-box {
+  cursor: pointer;
   float: left;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   color: white;
