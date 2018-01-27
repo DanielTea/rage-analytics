@@ -115,9 +115,20 @@ socket.on("rageIncoming", function(msg)
     else if(regExForWatchingAStream.test(currentUrl))
     {
       console.log("RAGE INCOMING WATCHING " + msg.link);
-      let streamer = currentStreamer.get(msg.link).streamer
-      console.log(streamer.name, "is raging, creating a notification")
-      showCustomNotification(streamer)
+      let streamer;
+
+      if (currentStreamer.has(msg.link))
+      {
+        streamer = currentStreamer.get(msg.link).streamer;
+        console.log(streamer.name, "is raging, creating a notification")
+        showCustomNotification(streamer)
+      }
+      else
+      {
+          // streamer = getSavedStreamer(msg.link);
+          console.log("Creating Notification from Saved streamer " + msg.link)
+          createCustomNotificationFromSavedStreamer(msg.link);
+      }
     }
   }
 });
@@ -217,6 +228,7 @@ function initEventsAndIntervalsSelection()
       socket.emit('sendStreamer', streamerNameList);
 
       streamerList.forEach(streamer => currentStreamer.set(streamer.name, {"streamer": streamer, "timeout": ""}));
+      saveStreamer(streamerList);
     },heartbeatTime);
   }
   else
@@ -311,6 +323,39 @@ function toDoNothing()
   }, heartbeatTime);
 
   deredify();
+}
+function  getSavedStreamer(streamerName)
+{
+  let msg = {"type": "getStreamer", "data": streamerName}
+  chrome.runtime.sendMessage(msg, function(response) {
+    console.log("Response: ", response);
+  });
+}
+
+function createCustomNotificationFromSavedStreamer(streamerName)
+{
+  let msg = {"type": "getStreamer", "data": streamerName}
+  chrome.runtime.sendMessage(msg, function(response) {
+    let data = JSON.parse(response);
+    console.log("got data from bg");
+    console.log(data);
+    if (data)
+    {
+      showCustomNotification(data);
+    }
+    else
+    {
+      console.log("something funky");
+    }
+  });
+}
+
+function saveStreamer(streamer)
+{
+  let msg = {"type": "saveStreamer", "data": JSON.stringify(streamer)}
+  chrome.runtime.sendMessage(msg, function(response) {
+    console.log("Response: ", response);
+  });
 }
 
 function getStreamerData()

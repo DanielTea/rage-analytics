@@ -2,19 +2,21 @@
 console.log("HELLO FROM BACKGROUND SCRIPT");
 
 let numberOfConcurrentStreamers;
-let currentStreamer;
+let currentStreamer = new Map();
 let currentSessionId;
 
 chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse)
 {
+    console.log(msg);
+
     // console.log("Received %o from %o, frame", msg, sender.tab, sender.frameId);
     if (msg.type == "initSession")
     {
-      initSession(msg);
+      currentStreamer.clear();
       sendResponse("Gotcha! " + msg.type);
     }
     else
-    if (msg.type == "updateStreamer")
+    if (msg.type == "saveStreamer")
     {
       updateStreamer(msg);
       sendResponse("Gotcha! " + msg.type);
@@ -22,7 +24,14 @@ chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse)
     else
     if (msg.type == "getStreamer")
     {
-      sendResponse(currentStreamer);
+      if (currentStreamer.has(msg.data))
+      {
+        sendResponse(JSON.stringify(currentStreamer.get(msg.data)));
+      }
+      else
+      {
+        sendResponse(JSON.stringify(false));
+      }
     }
     else
     {
@@ -41,13 +50,7 @@ function initSession(msg)
 
 function updateStreamer(msg)
 {
-  if (currentSessionId == msg.sessionId && numberOfConcurrentStreamers == msg.data.length)
-  {
-    currentStreamer = msg.data;
+    let data  = JSON.parse(msg.data);
+    data.forEach(streamer => currentStreamer.set(streamer.name, streamer))
     console.log(currentStreamer);
-  }
-  else
-  {
-      console.log("OLD DATA");
-  }
 }

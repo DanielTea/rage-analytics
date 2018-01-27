@@ -340,6 +340,7 @@ span#sessionStatusOverlayText {
 }
 
 .notification-box__rage{
+  line-height: 40px;
   display: inline-block;
   font-family: 'youmurdererbb_reg', cursive;
   position: absolute;

@@ -24,6 +24,7 @@ socketio = SocketIO(app, async_mode="threading", ping_timeout=10000)
 
 streamer_list = []
 analyseAll = False
+
 # r_engine = RecognitionEngine(streamer_list,  emotion_classifier, graph, queueSize=128)
 
 @socketio.on('connect', namespace='/stream')
