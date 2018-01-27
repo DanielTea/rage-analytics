@@ -56,13 +56,13 @@ let timeOutDeredify;
 let toDo = checkUrl();
 toDo();
 
-window.addEventListener("load", function()
-{
-  // tell the background script o start a new Session
-  let toDo = checkUrl();
-  toDo();
-  console.log("WindowLoadEvent")
-});
+// window.addEventListener("load", function()
+// {
+//   // tell the background script o start a new Session
+//   let toDo = checkUrl();
+//   toDo();
+//   console.log("WindowLoadEvent")
+// });
 
 window.addEventListener("newUrl", function()
 {
@@ -73,7 +73,13 @@ window.addEventListener("newUrl", function()
 
 socket.on('connect', function()
 {
+  console.log("conncted")
   socket.emit('message', 'HELLO FROM EXTENSION JOOOOOOO  SELCETION');
+});
+
+socket.on('test', function(e)
+{
+  console.log(e)
 });
 
  socket.on('disconnect', function()
@@ -342,10 +348,6 @@ function showRageNotification(streamer)
     icon: streamer.img,
     body: streamer.name.substr(1) + " is raging! Check it out here",
   });
-
-  notification.onclick = function () {
-    window.open("https://www.twitch.tv" + streamerName);
-  };
 }
 
 function insertNotificationContainer()
@@ -447,6 +449,12 @@ function createCustomNotification(streamer)
     `;
 
     // ---- Body ----
+    let atag = document.createElement("a");
+    atag.setAttribute("data-a-target", "live-channel-card-thumbnail-link");
+    atag.setAttribute("href", "/" + streamerName);
+
+    // atag.addEventListener("click", function(e) {e.preventDefault();});
+
 
     let notificationBody = document.createElement("div");
     notificationBody.className = "notification-box__body";
@@ -460,7 +468,7 @@ function createCustomNotification(streamer)
 
     let rageText = document.createElement("span");
     rageText.className = "notification-box__rage";
-    rageText.innerHTML = "RAGE!";
+    rageText.innerHTML = getRandomMessage("rage").replace("NAME", streamerName);
 
     // ---- Append Children ----
 
@@ -471,14 +479,10 @@ function createCustomNotification(streamer)
     topBar.appendChild(title);
     topBar.appendChild(xButton);
 
-    notification.appendChild(topBar);
-    notification.appendChild(notificationBody);
+    atag.appendChild(notificationBody);
 
-    notification.addEventListener("click", function() {
-        location.href = "https://www.twitch.tv/" + streamerName;
-        let event = new CustomEvent('newUrl', {});
-        window.dispatchEvent(event);
-    });
+    notification.appendChild(topBar);
+    notification.appendChild(atag);
 
     wrapper.appendChild(notification);
 
@@ -492,7 +496,11 @@ function addAnimationInit()
   let selector = ".top-nav__menu, .tw-button, .top-nav__nav-link, .tw-button__text, .directory-header__link, .tw-button--hollow, .directory-tabs__item";
   addClassToList( S(selector) , "rage-animation-init" );
 
-  S(".top-nav__menu")[0].classList.add("rage-red-bg");
+  let topbar = S(".top-nav__menu")[0];
+  if (topbar != null)
+  {
+    topbar.classList.add("rage-red-bg");
+  }
 }
 
 function redify()

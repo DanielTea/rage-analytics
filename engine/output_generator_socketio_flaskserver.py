@@ -26,17 +26,22 @@ streamer_list = []
 analyseAll = False
 # r_engine = RecognitionEngine(streamer_list,  emotion_classifier, graph, queueSize=128)
 
-@socketio.on('connect')
+@socketio.on('connect', namespace='/stream')
 def handle_connect():
     print("connected")
-    emit('test', "test0")
+    emit('test', 'test0', namespace='/stream')
 
-@socketio.on('disconnect')
+@socketio.on('message', namespace='/stream')
+def handle_message(arg1):
+    print(arg1)
+    emit('test', 'test1', namespace='/stream')
+
+@socketio.on('disconnect', namespace='/stream')
 def handle_disconnect():
-    K.clear_session()
-    print("disconnected")
+    #K.clear_session()
+    print('disconnected')
 
-@socketio.on('analyseAll')
+@socketio.on('analyseAll', namespace='/stream')
 def handle_analyse(arg1):
     print("changed analyse satus to " + arg1)
     analyseAll = arg1
@@ -49,7 +54,7 @@ def handle_top_five_streamer(arg1):
     print("")
 
     K.clear_session()
-    emit('sessionStatus', '0') # deleted network
+    emit('sessionStatus', '0', namespace='/stream') # deleted network
 
     tf.reset_default_graph()
     emotion_model_path = './Engine/trained_models/emotion_models/fer2013_mini_XCEPTION.102-0.66.hdf5'
@@ -57,7 +62,7 @@ def handle_top_five_streamer(arg1):
     emotion_classifier._make_predict_function()
     graph = tf.get_default_graph()
 
-    emit('sessionStatus', '1')  # created Network
+    emit('sessionStatus', '1', namespace='/stream')  # created Network
 
     link_list = arg1
     resolution = '360p'
@@ -79,7 +84,7 @@ def handle_top_five_streamer(arg1):
 
     r_engine = RecognitionEngine(video_streamer_list, emotion_classifier, graph, queueSize=128)
 
-    emit('sessionStatus', '2')  # initialised FFMPEG
+    emit('sessionStatus', '2', namespace='/stream')  # initialised FFMPEG
 
     while True:
 
@@ -88,7 +93,7 @@ def handle_top_five_streamer(arg1):
             element = r_engine.read()
             text = "[" + str(element[0]) + "," + str(element[1]) + "]"
             print(text)
-            emit('rageIncoming', {'link': str(element[0]), 'confidence': str(element[1])})
+            emit('rageIncoming', {'link': str(element[0]), 'confidence': str(element[1])}, namespace='/stream', broadcast=True)
 
         else:
             continue
