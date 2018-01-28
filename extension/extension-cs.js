@@ -34,7 +34,7 @@ const overlayMessages = {"rage": [  "don't cry, NAME",
 const streamerSelection = "SELECTION";
 const streamerWatching = "WATCHING";
 
-const stringForStreamerSelection = /^https:\/\/www\.twitch\.tv\/directory\/game\/[\w%']{3,}$/;
+const stringForStreamerSelection = /^https:\/\/www\.twitch\.tv\/directory\/game\/[\w%\-']{3,}$/;
 const stringForWatchingAStream = /^https:\/\/www\.twitch\.tv\/[\w%']{3,}$/;
 const subdomainsToExclude = ["directory"];
 
