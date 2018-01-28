@@ -13,7 +13,7 @@ chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse)
     if (msg.type == "initSession")
     {
       currentStreamer.clear();
-      sendResponse("Gotcha! " + msg.type);
+      sendResponse("cleared bg");
     }
     else
     if (msg.type == "saveStreamer")

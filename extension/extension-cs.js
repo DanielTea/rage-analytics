@@ -216,6 +216,7 @@ function initEventsAndIntervalsSelection()
   {
     console.log("new game")
     activeGame = currentUrl;
+    clearBackgroundScript();
 
     // For getting getting and sending the data;
     setTimeout( function() {
@@ -332,20 +333,23 @@ function  getSavedStreamer(streamerName)
   });
 }
 
+function clearBackgroundScript()
+{
+  chrome.runtime.sendMessage({"type":"initSession"}, function(response) {console.log(response);})
+}
+
 function createCustomNotificationFromSavedStreamer(streamerName)
 {
   let msg = {"type": "getStreamer", "data": streamerName}
   chrome.runtime.sendMessage(msg, function(response) {
     let data = JSON.parse(response);
-    console.log("got data from bg");
-    console.log(data);
     if (data)
     {
       showCustomNotification(data);
     }
     else
     {
-      console.log("something funky");
+      console.log("couldnt find stream in bg");
     }
   });
 }
