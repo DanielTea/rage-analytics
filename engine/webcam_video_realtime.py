@@ -38,7 +38,7 @@ emotion_window = []
 # starting video streaming
 cv2.namedWindow('window_frame')
 
-vs = WebcamVideoStream(src=1).start()
+vs = WebcamVideoStream(src=0).start()
 
 while True:
 

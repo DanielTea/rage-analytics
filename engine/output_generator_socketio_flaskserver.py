@@ -21,6 +21,8 @@ app = Flask(__name__)
 socketio = SocketIO(app, async_mode="threading", ping_timeout=10000)
 
 streamer_list = []
+
+
 analyseAll = False
 # r_engine = RecognitionEngine(streamer_list,  emotion_classifier, graph, queueSize=128)
 
@@ -50,9 +52,6 @@ def handle_top_five_streamer(arg1):
     emit('sessionStatus', '0') # deleted network
 
     tf.reset_default_graph()
-    # emotion_model_path = './Engine/trained_models/emotion_models/fer2013_mini_XCEPTION.102-0.66.hdf5'
-    # emotion_classifier = load_model(emotion_model_path, compile=False)
-    # emotion_classifier._make_predict_function()
     graph = tf.get_default_graph()
 
     emit('sessionStatus', '1')  # created Network
