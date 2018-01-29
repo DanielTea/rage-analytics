@@ -92,7 +92,7 @@ socket.on("sessionStatus", function(msg) { handleSessionStatus(msg) });
 socket.on("rageIncoming", function(msg)
 {
   console.log("MESSAGE: ", msg)
-  if (msg.confidence > confidenceThreshold)
+  if (msg.confidence > confidenceThreshold && msg.game == activeGame)
   {
     if(regExForStreamerSelection.test(currentUrl))
     {
@@ -213,7 +213,11 @@ function initEventsAndIntervalsSelection()
 
   console.log("ACTIVE GAME " + activeGame);
   console.log("URL         " + currentUrl);
-
+  if (activeGame != currentUrl && activeGame != "")
+  {
+    location.reload()
+  }
+  else
   if (activeGame != currentUrl)
   {
     console.log("new game")
@@ -227,6 +231,7 @@ function initEventsAndIntervalsSelection()
 
       console.log("send data for selection " + streamerNameList);
       console.log(streamerList.length);
+
       let msg = {"game": currentUrl, "streamer": streamerNameList};
       socket.emit('sendStreamer', msg);
 
@@ -310,7 +315,7 @@ function toDoWatching()
 function toDoNothing()
 {
   console.log("LAME! NOTHING TO DO");
-  activeGame = "";
+
 
   clearInterval(intervalUrl);
 
