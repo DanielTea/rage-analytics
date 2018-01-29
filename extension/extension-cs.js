@@ -56,13 +56,13 @@ let timeOutDeredify;
 let toDo = checkUrl();
 toDo();
 
-window.addEventListener("load", function()
-{
-  // tell the background script o start a new Session
-  let toDo = checkUrl();
-  toDo();
-  console.log("WindowLoadEvent")
-});
+// window.addEventListener("load", function()
+// {
+//   // tell the background script o start a new Session
+//   let toDo = checkUrl();
+//   toDo();
+//   console.log("WindowLoadEvent")
+// });
 
 window.addEventListener("newUrl", function()
 {
@@ -73,7 +73,13 @@ window.addEventListener("newUrl", function()
 
 socket.on('connect', function()
 {
+  console.log("conncted")
   socket.emit('message', 'HELLO FROM EXTENSION JOOOOOOO  SELCETION');
+});
+
+socket.on('test', function(e)
+{
+  console.log(e)
 });
 
  socket.on('disconnect', function()
@@ -91,7 +97,6 @@ socket.on("rageIncoming", function(msg)
     if(regExForStreamerSelection.test(currentUrl))
     {
       console.log("RAGE INCOMING SELECTION");
-      redify();
 
       let oldText = S("a[href='" + msg.link + "']  > span.rage-overlay-text");
       oldText.forEach(item => item.remove());
@@ -102,6 +107,8 @@ socket.on("rageIncoming", function(msg)
       thisStreamer.timeout = setTimeout(function () {
           unshowRage(msg.link);
       }, 3000);
+
+      redify();
       clearTimeout(timeOutDeredify);
       timeOutDeredify = setTimeout( function() { deredify() }, 3000);
 
@@ -109,9 +116,21 @@ socket.on("rageIncoming", function(msg)
     else if(regExForWatchingAStream.test(currentUrl))
     {
       console.log("RAGE INCOMING WATCHING " + msg.link);
-      let streamer = currentStreamer.get(msg.link).streamer
-      console.log(streamer.name, "is raging, creating a notification")
-      showCustomNotification(streamer)
+      let streamer;
+
+      redify();
+      clearTimeout(timeOutDeredify);
+      timeOutDeredify = setTimeout( function() { deredify() }, 3000);
+
+      if (currentStreamer.has(msg.link))
+      {
+        streamer = currentStreamer.get(msg.link).streamer;
+        showCustomNotification(streamer)
+      }
+      else
+      {
+          createCustomNotificationFromSavedStreamer(msg.link);
+      }
     }
   }
 });
@@ -199,6 +218,7 @@ function initEventsAndIntervalsSelection()
   {
     console.log("new game")
     activeGame = currentUrl;
+    clearBackgroundScript();
 
     // For getting getting and sending the data;
     setTimeout( function() {
@@ -211,6 +231,7 @@ function initEventsAndIntervalsSelection()
       socket.emit('sendStreamer', streamerNameList);
 
       streamerList.forEach(streamer => currentStreamer.set(streamer.name, {"streamer": streamer, "timeout": ""}));
+      saveStreamer(streamerList);
     },heartbeatTime);
   }
   else
@@ -293,6 +314,11 @@ function toDoNothing()
 
   clearInterval(intervalUrl);
 
+  streamerShownWhileWatching.clear();
+  streamerShownWhileWatching.forEach(streamer => clearTimeout(streamer.timeout));
+  let oldNotificationContainer = S(".notification-container")[0];
+  if (oldNotificationContainer != null) { oldNotificationContainer.remove(); }
+
   // for checking the current url -> twitch is react so i cant listen on load events
   intervalUrl = setInterval( function()
   {
@@ -305,6 +331,42 @@ function toDoNothing()
   }, heartbeatTime);
 
   deredify();
+}
+function  getSavedStreamer(streamerName)
+{
+  let msg = {"type": "getStreamer", "data": streamerName}
+  chrome.runtime.sendMessage(msg, function(response) {
+    console.log("Response: ", response);
+  });
+}
+
+function clearBackgroundScript()
+{
+  chrome.runtime.sendMessage({"type":"initSession"}, function(response) {console.log(response);})
+}
+
+function createCustomNotificationFromSavedStreamer(streamerName)
+{
+  let msg = {"type": "getStreamer", "data": streamerName}
+  chrome.runtime.sendMessage(msg, function(response) {
+    let data = JSON.parse(response);
+    if (data)
+    {
+      showCustomNotification(data);
+    }
+    else
+    {
+      console.log("couldnt find stream in bg");
+    }
+  });
+}
+
+function saveStreamer(streamer)
+{
+  let msg = {"type": "saveStreamer", "data": JSON.stringify(streamer)}
+  chrome.runtime.sendMessage(msg, function(response) {
+    console.log("Response: ", response);
+  });
 }
 
 function getStreamerData()
@@ -342,10 +404,6 @@ function showRageNotification(streamer)
     icon: streamer.img,
     body: streamer.name.substr(1) + " is raging! Check it out here",
   });
-
-  notification.onclick = function () {
-    window.open("https://www.twitch.tv" + streamerName);
-  };
 }
 
 function insertNotificationContainer()
@@ -373,6 +431,13 @@ function showCustomNotification(streamer)
 
   let numberOfNotifications = streamerShownWhileWatching.size
 
+  let nameFromUrl = "/" + currentUrl.split("/")[3];
+  if (streamer.name == nameFromUrl)
+  {
+    console.log("No notification because we are watching this streamer")
+
+  }
+  else
   if(!streamerShownWhileWatching.has(streamer.name) && numberOfNotifications <  3)
   {
     let container  = S(".notification-container")[0]
@@ -396,7 +461,28 @@ function showCustomNotification(streamer)
     let timeout = removeCustomNotification(streamer.name)
     streamerShownWhileWatching.get(streamer.name).timeout = timeout;
 
+    updateStreamerText(streamer.name, streamerShownWhileWatching.get(streamer.name));
+
   }
+}
+
+
+function updateStreamerText(streamerName, streamer)
+{
+  let notification = streamer.notification;
+  let span = notification.children[0].children[1].children[0].children[2];
+  span.textContent = getRandomMessage("rage").replace("NAME", streamerName.substring(1));
+
+  span.classList.remove("rage-font-1");
+  span.classList.remove("rage-font-2");
+  span.classList.remove("rage-font-3");
+  span.classList.remove("rage-font-4");
+
+  span.classList.add("rage-font-" + getRandomInt(1,5));
+  span.classList.remove("shake");
+  setTimeout(function () {
+    span.classList.add("shake");
+  }, 10);
 }
 
 function removeCustomNotification(streamerName)
@@ -407,7 +493,7 @@ function removeCustomNotification(streamerName)
       streamerShownWhileWatching.get(streamerName).notification.remove();
       streamerShownWhileWatching.delete(streamerName);
     }, 1500)
-  }, 5000);
+  }, 3000);
 }
 
 
@@ -447,6 +533,12 @@ function createCustomNotification(streamer)
     `;
 
     // ---- Body ----
+    let atag = document.createElement("a");
+    atag.setAttribute("data-a-target", "live-channel-card-thumbnail-link");
+    atag.setAttribute("href", "/" + streamerName);
+
+    // atag.addEventListener("click", function(e) {e.preventDefault();});
+
 
     let notificationBody = document.createElement("div");
     notificationBody.className = "notification-box__body";
@@ -460,7 +552,9 @@ function createCustomNotification(streamer)
 
     let rageText = document.createElement("span");
     rageText.className = "notification-box__rage";
-    rageText.innerHTML = "RAGE!";
+    rageText.innerHTML = getRandomMessage("rage").replace("NAME", streamerName);
+    rageText.classList.add("rage-font-" + getRandomInt(1,5));
+    rageText.classList.add("shake");
 
     // ---- Append Children ----
 
@@ -471,14 +565,10 @@ function createCustomNotification(streamer)
     topBar.appendChild(title);
     topBar.appendChild(xButton);
 
-    notification.appendChild(topBar);
-    notification.appendChild(notificationBody);
+    atag.appendChild(notificationBody);
 
-    notification.addEventListener("click", function() {
-        location.href = "https://www.twitch.tv/" + streamerName;
-        let event = new CustomEvent('newUrl', {});
-        window.dispatchEvent(event);
-    });
+    notification.appendChild(topBar);
+    notification.appendChild(atag);
 
     wrapper.appendChild(notification);
 
@@ -492,7 +582,11 @@ function addAnimationInit()
   let selector = ".top-nav__menu, .tw-button, .top-nav__nav-link, .tw-button__text, .directory-header__link, .tw-button--hollow, .directory-tabs__item";
   addClassToList( S(selector) , "rage-animation-init" );
 
-  S(".top-nav__menu")[0].classList.add("rage-red-bg");
+  let topbar = S(".top-nav__menu")[0];
+  if (topbar != null)
+  {
+    topbar.classList.add("rage-red-bg");
+  }
 }
 
 function redify()
