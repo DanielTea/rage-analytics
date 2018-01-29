@@ -97,7 +97,6 @@ socket.on("rageIncoming", function(msg)
     if(regExForStreamerSelection.test(currentUrl))
     {
       console.log("RAGE INCOMING SELECTION");
-      redify();
 
       let oldText = S("a[href='" + msg.link + "']  > span.rage-overlay-text");
       oldText.forEach(item => item.remove());
@@ -108,6 +107,8 @@ socket.on("rageIncoming", function(msg)
       thisStreamer.timeout = setTimeout(function () {
           unshowRage(msg.link);
       }, 3000);
+
+      redify();
       clearTimeout(timeOutDeredify);
       timeOutDeredify = setTimeout( function() { deredify() }, 3000);
 
@@ -117,16 +118,17 @@ socket.on("rageIncoming", function(msg)
       console.log("RAGE INCOMING WATCHING " + msg.link);
       let streamer;
 
+      redify();
+      clearTimeout(timeOutDeredify);
+      timeOutDeredify = setTimeout( function() { deredify() }, 3000);
+
       if (currentStreamer.has(msg.link))
       {
         streamer = currentStreamer.get(msg.link).streamer;
-        console.log(streamer.name, "is raging, creating a notification")
         showCustomNotification(streamer)
       }
       else
       {
-          // streamer = getSavedStreamer(msg.link);
-          console.log("Creating Notification from Saved streamer " + msg.link)
           createCustomNotificationFromSavedStreamer(msg.link);
       }
     }
@@ -312,6 +314,11 @@ function toDoNothing()
 
   clearInterval(intervalUrl);
 
+  streamerShownWhileWatching.clear();
+  streamerShownWhileWatching.forEach(streamer => clearTimeout(streamer.timeout));
+  let oldNotificationContainer = S(".notification-container")[0];
+  if (oldNotificationContainer != null) { oldNotificationContainer.remove(); }
+
   // for checking the current url -> twitch is react so i cant listen on load events
   intervalUrl = setInterval( function()
   {
@@ -424,6 +431,13 @@ function showCustomNotification(streamer)
 
   let numberOfNotifications = streamerShownWhileWatching.size
 
+  let nameFromUrl = "/" + currentUrl.split("/")[3];
+  if (streamer.name == nameFromUrl)
+  {
+    console.log("No notification because we are watching this streamer")
+
+  }
+  else
   if(!streamerShownWhileWatching.has(streamer.name) && numberOfNotifications <  3)
   {
     let container  = S(".notification-container")[0]
@@ -447,7 +461,28 @@ function showCustomNotification(streamer)
     let timeout = removeCustomNotification(streamer.name)
     streamerShownWhileWatching.get(streamer.name).timeout = timeout;
 
+    updateStreamerText(streamer.name, streamerShownWhileWatching.get(streamer.name));
+
   }
+}
+
+
+function updateStreamerText(streamerName, streamer)
+{
+  let notification = streamer.notification;
+  let span = notification.children[0].children[1].children[0].children[2];
+  span.textContent = getRandomMessage("rage").replace("NAME", streamerName.substring(1));
+
+  span.classList.remove("rage-font-1");
+  span.classList.remove("rage-font-2");
+  span.classList.remove("rage-font-3");
+  span.classList.remove("rage-font-4");
+
+  span.classList.add("rage-font-" + getRandomInt(1,5));
+  span.classList.remove("shake");
+  setTimeout(function () {
+    span.classList.add("shake");
+  }, 10);
 }
 
 function removeCustomNotification(streamerName)
@@ -458,7 +493,7 @@ function removeCustomNotification(streamerName)
       streamerShownWhileWatching.get(streamerName).notification.remove();
       streamerShownWhileWatching.delete(streamerName);
     }, 1500)
-  }, 5000);
+  }, 3000);
 }
 
 
@@ -518,6 +553,8 @@ function createCustomNotification(streamer)
     let rageText = document.createElement("span");
     rageText.className = "notification-box__rage";
     rageText.innerHTML = getRandomMessage("rage").replace("NAME", streamerName);
+    rageText.classList.add("rage-font-" + getRandomInt(1,5));
+    rageText.classList.add("shake");
 
     // ---- Append Children ----
 

@@ -1,4 +1,3 @@
-
 console.log("HELLO FROM BACKGROUND SCRIPT");
 
 let numberOfConcurrentStreamers;
