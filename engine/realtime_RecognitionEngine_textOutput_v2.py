@@ -88,8 +88,10 @@ class RecognitionEngine:
                         emotion_text = emotion_labels[emotion_label_arg]
 
 
-                        if not self.Q.full() and emotion_text == 'angry':
-                            self.Q.put([element[0], percentage])
+                        if not self.Q.full():
+
+                            self.Q.put([element[0], emotion_text, percentage])
+
                         else:
                             continue
                 else:
