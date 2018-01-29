@@ -52,6 +52,8 @@ def handle_top_five_streamer(arg1):
     print('RECEIVED: ' + str(arg1))
     print("")
 
+
+
     K.clear_session()
     emit('sessionStatus', '0', namespace='/stream') # deleted network
 
@@ -61,6 +63,8 @@ def handle_top_five_streamer(arg1):
     emit('sessionStatus', '1', namespace='/stream')  # created Network
 
     link_list = arg1['streamer']
+    game = arg1['game']
+
     resolution = '360p'
 
     video_streamer_list = []
@@ -87,9 +91,15 @@ def handle_top_five_streamer(arg1):
         if r_engine.more():
 
             element = r_engine.read()
-            text = "[" + str(element[0]) + "," + str(element[1]) + "]"
+            text = "[" + str(element[0]) + ", " +str(element[1]) + ", " + str(element[2]) + "]"
             print(text)
-            emit('rageIncoming', {'link': str(element[0]), 'confidence': str(element[1])}, namespace='/stream', broadcast=True)
+
+            f = open('emotion_logging.csv', 'wb')
+            f.write(str(element[0]) + ";" +str(element[1]) + ";" + str(element[2])+";"+str(game)+"/n")
+            f.close()
+
+            if element[1] == "angry":
+                emit('rageIncoming', {'link': str(element[0]), 'confidence': str(element[2])}, namespace='/stream', broadcast=True)
 
         else:
             continue
