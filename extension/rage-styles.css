@@ -333,23 +333,23 @@ span#sessionStatusOverlayText {
   display: inline-block;
   width: 100%;
   height: 146px;
-  opacity: 0.3;
-  background-color: rgb(239, 93, 96);
+  opacity: 0.6;
+	box-shadow: inset 0 0 62px #5b3a33;
+	background-image: linear-gradient(45deg, #fb3640, #f46036);
   position: absolute;
   margin: auto;
 }
 
 .notification-box__rage{
-  display: inline-block;
-  font-family: 'youmurdererbb_reg', cursive;
+  padding: 5px;
+  line-height: 40px;
   position: absolute;
-  font-size: 40px;
-  width: 100%;
-  margin: auto;
-  color: white;
-  z-index: 9999;
+  color:white;
+  z-index: 10000;
+  bottom: 5px;
+  font-size: 24px;
   text-align: center;
-  vertical-align: middle;
+  width: 100%;
 }
 
 .notification-box__image {
