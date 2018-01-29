@@ -60,7 +60,7 @@ def handle_top_five_streamer(arg1):
 
     emit('sessionStatus', '1', namespace='/stream')  # created Network
 
-    link_list = arg1
+    link_list = arg1['streamer']
     resolution = '360p'
 
     video_streamer_list = []

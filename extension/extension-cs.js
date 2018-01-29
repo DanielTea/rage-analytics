@@ -227,8 +227,8 @@ function initEventsAndIntervalsSelection()
 
       console.log("send data for selection " + streamerNameList);
       console.log(streamerList.length);
-
-      socket.emit('sendStreamer', streamerNameList);
+      let msg = {"game": currentUrl, "streamer": streamerNameList};
+      socket.emit('sendStreamer', msg);
 
       streamerList.forEach(streamer => currentStreamer.set(streamer.name, {"streamer": streamer, "timeout": ""}));
       saveStreamer(streamerList);
@@ -408,16 +408,19 @@ function showRageNotification(streamer)
 
 function insertNotificationContainer()
 {
-  let notificationContainer = document.createElement("div");
-  notificationContainer.className = "notification-container";
-  let parentForNotificationContainer = S("body")[0];
-  if (parentForNotificationContainer != null)
+  if (S(".notification-container")[0] == null)
   {
-    parentForNotificationContainer.appendChild(notificationContainer);
-  }
-  else
-  {
-    console.log("infobar doesnt exists anymore")
+    let notificationContainer = document.createElement("div");
+    notificationContainer.className = "notification-container";
+    let parentForNotificationContainer = S("body")[0];
+    if (parentForNotificationContainer != null)
+    {
+      parentForNotificationContainer.appendChild(notificationContainer);
+    }
+    else
+    {
+      console.log("infobar doesnt exists anymore")
+    }
   }
 
 }
