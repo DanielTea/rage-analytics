@@ -360,4 +360,59 @@ span#sessionStatusOverlayText {
 }
 
 
-/* notification-css ^*/
+.settings-outer {
+  position: absolute;
+  z-index: 9999999;
+  width: 50px;
+  height: 50px;
+  bottom: 10px;
+  right: 0;
+  transition: width 0.3s ease-in-out;
+  background: linear-gradient(-45deg, #fb3640, #f46036);
+  box-shadow: 0 0 20px #00000057;
+}
+
+.settings-outer.expanded {
+  width: 200px;
+}
+.settings-inner {
+  width: 50px;
+  height: 50px;
+  left: 0;
+  cursor: pointer;
+
+}
+
+.settings-inner > svg {
+  width: 28px !important;
+  height: 28px !important;
+  margin: 11px;
+  transition: transform 0.5s ease-in-out;
+}
+
+.settings-inner > svg.rotated {
+  transform:rotate(-90deg);
+}
+
+.settings-container {
+  position: absolute;
+  height: 50px;
+  left: 50px;
+  width: 150px;
+  top: 0;
+  padding-left: 25px;
+}
+
+.settings-bar {
+  width: 18px;
+  margin: 0 1px;
+  background-color: rgba(255,255,255,0.3);
+  float:left;
+  bottom: 12.5px;
+  position: absolute;
+  transition: background-color 0.3s ease;
+}
+
+.settings-bar.selected {
+  background-color: rgba(255,255,255,1);
+}
