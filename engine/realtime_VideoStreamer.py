@@ -10,6 +10,7 @@ class VideoStreamer:
         self.twitch_url = twitch_url
         self.res = resolution
         self.n_frame = n_frame
+        self.stopped = False
 
         # initialize the queue used to store frames read from
         # the video stream

@@ -4,6 +4,7 @@ from queue import Queue
 import cv2
 import numpy as np
 import tensorflow as tf
+import face_recognition
 
 from Engine.utils.datasets import get_labels
 from Engine.utils.inference import detect_faces
@@ -59,18 +60,28 @@ class RecognitionEngine:
 
                     bgr_image = element[1].read()
 
-                    # sleep(1/30)
-
-                    # bgr_image = trim_frame(bgr_image)
-                    gray_image = cv2.cvtColor(bgr_image, cv2.COLOR_BGR2GRAY)
-
-                    faces = detect_faces(face_detection, gray_image)
                     # print(str(faces))
 
-                    for face_coordinates in faces:
+                    # Resize frame of video to 1/4 size for faster face recognition processing
+                    small_frame = cv2.resize(bgr_image, (0, 0), fx=0.25, fy=0.25)
 
-                        x1, x2, y1, y2 = apply_offsets(face_coordinates, emotion_offsets)
-                        gray_face = gray_image[y1:y2, x1:x2]
+                    # Convert the image from BGR color (which OpenCV uses) to RGB color (which face_recognition uses)
+                    rgb_small_frame = cv2.cvtColor(small_frame, cv2.COLOR_BGR2RGB)
+
+                    gray_image = cv2.cvtColor(rgb_small_frame, cv2.COLOR_BGR2GRAY)
+
+                    # cv2.imshow('Video', gray_image)
+
+                    # Only process every other frame of video to save time
+
+                    # Find all the faces and face encodings in the current frame of video
+                    face_locations = face_recognition.face_locations(rgb_small_frame)
+                    # face_locations = face_recognition.face_locations(frame)
+
+                    for (top, right, bottom, left) in face_locations:
+
+                        gray_face = gray_image[top:bottom, left:right]
+
                         try:
                             gray_face = cv2.resize(gray_face, (self.emotion_target_size))
                         except:

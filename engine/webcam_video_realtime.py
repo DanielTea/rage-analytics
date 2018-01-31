@@ -83,7 +83,9 @@ while True:
         emotion_probability = np.max(emotion_prediction)
         emotion_label_arg = np.argmax(emotion_prediction)
         emotion_text = emotion_labels[emotion_label_arg]
-        emotion_window.append(emotion_text)
+
+        output_text = str(emotion_text) + " confidence: %.2f" % round(emotion_probability, 2)
+        emotion_window.append(output_text)
 
         if len(emotion_window) > frame_window:
             emotion_window.pop(1)

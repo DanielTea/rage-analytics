@@ -2,8 +2,10 @@ import os
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"   # see issue #152
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
+import ctypes
+
 import tensorflow as tf
-from flask import stream_with_context, request, Response, Flask
+from flask import stream_with_context, request, Response, Flask, g
 from flask_socketio import SocketIO, send, emit
 from keras.models import load_model
 from realtime_VideoStreamer import VideoStreamer
@@ -17,12 +19,10 @@ import multiprocessing.dummy as mp
 emotion_model_path = './Engine/trained_models/emotion_models/fer2013_mini_XCEPTION.102-0.66.hdf5'
 emotion_classifier = load_model(emotion_model_path, compile=False)
 emotion_classifier._make_predict_function()
-# graph = tf.get_default_graph()
 
 app = Flask(__name__)
 socketio = SocketIO(app, async_mode="threading", ping_timeout=10000)
 
-streamer_list = []
 analyseAll = False
 
 # r_engine = RecognitionEngine(streamer_list,  emotion_classifier, graph, queueSize=128)
@@ -67,8 +67,6 @@ def handle_top_five_streamer(arg1):
     resolution = '360p'
     video_streamer_list = []
 
-
-
     def get_video(link):
          vs = VideoStreamer("https://www.twitch.tv"+str(link), queueSize=128, resolution=resolution, n_frame=15)
          video_streamer_list.append([link, vs])
@@ -81,6 +79,7 @@ def handle_top_five_streamer(arg1):
     print("")
     print("STARTING TO ANALYSE " + str(len(link_list)) + " streams")
     print("")
+
 
     r_engine = RecognitionEngine(video_streamer_list, emotion_classifier, graph, queueSize=128)
 
