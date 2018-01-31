@@ -3,6 +3,7 @@ console.log("HELLO FROM BACKGROUND SCRIPT");
 let numberOfConcurrentStreamers;
 let currentStreamer = new Map();
 let currentSessionId;
+let lastGame;
 
 chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse)
 {
@@ -31,6 +32,16 @@ chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse)
       {
         sendResponse(JSON.stringify(false));
       }
+    }
+    if (msg.type == "safeGame")
+    {
+      lastGame = msg.data;
+      sendResponse("Safed Game in Background " + msg.data)
+    }
+    else
+    if (msg.type == "getSafedGame")
+    {
+      sendResponse(lastGame)
     }
     else
     {

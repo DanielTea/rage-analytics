@@ -52,6 +52,8 @@ let activeGame = "";
 let intervalUrl;
 let timeOutDeredify;
 
+let rageLimit = 0.3;
+
 // tell the background script o start a new Session
 let toDo = checkUrl();
 toDo();
@@ -134,6 +136,14 @@ socket.on("rageIncoming", function(msg)
     }
   }
 });
+
+chrome.runtime.onMessage.addListener(
+  function(request, sender, sendResponse) {
+    rageLimit = request.confidence;
+    console.log(rageLimit);
+  });
+
+
 
 function handleSessionStatus(msg)
 {
@@ -222,6 +232,7 @@ function initEventsAndIntervalsSelection()
   {
     console.log("new game")
     activeGame = currentUrl;
+    safeLastGame(activeGame);
     clearBackgroundScript();
 
     // For getting getting and sending the data;
@@ -259,6 +270,11 @@ function initEventsAndIntervalsWatching()
       window.dispatchEvent(event);
     }
   }, heartbeatTime);
+
+  if (activeGame == "")
+  {
+    getSafedGame();
+  }
 
   console.log("initEventsAndIntervalsWatching");
 }
@@ -348,6 +364,21 @@ function  getSavedStreamer(streamerName)
 function clearBackgroundScript()
 {
   chrome.runtime.sendMessage({"type":"initSession"}, function(response) {console.log(response);})
+}
+
+function safeLastGame(game)
+{
+  chrome.runtime.sendMessage({"type":"safeGame", "data": game}, function(response) {console.log(response);})
+}
+
+function getSafedGame()
+{
+  chrome.runtime.sendMessage({"type":"getSafedGame"}, function(response)
+  {
+    activeGame = response;
+    console.log("got Safed Game")
+  })
+
 }
 
 function createCustomNotificationFromSavedStreamer(streamerName)
