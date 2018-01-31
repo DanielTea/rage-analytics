@@ -18,3 +18,4 @@ engine/Engine/utils/__pycache__/
 .mp4
 /engine/__pycache__/
 ai-playground/datasets/*
+/**/*.csv

@@ -18,10 +18,12 @@ class DataManager(object):
         elif self.dataset_name == 'imdb':
             self.dataset_path = '../datasets/imdb_crop/imdb.mat'
         elif self.dataset_name == 'fer2013':
-            self.dataset_path = '/Users/danieltremer/Documents/GIT-Repositories/rage-analytics/datasets/fer2013/fer2013.csv'
+            self.dataset_path = '../datasets/fer2013_cohn_kanade_combined.csv'
         elif self.dataset_name == 'KDEF':
             self.dataset_path = '../datasets/KDEF/'
-        else:
+        else:1``1234567890-
+        #'];[ploiu8y7654321`    Aq1 q|Aq    12` ≈
+        #'];[ploiu8y7654321`    Aq1 q|Aq    12` ≈43q    |≈'{:4d}'.format(42)BM,
             raise Exception('Incorrect dataset name, please input imdb or fer2013')
 
     def get_data(self):
