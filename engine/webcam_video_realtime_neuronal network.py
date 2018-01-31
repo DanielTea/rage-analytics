@@ -37,7 +37,7 @@ emotion_target_size = emotion_classifier.input_shape[1:3]
 emotion_window = []
 
 # starting video streaming
-cv2.namedWindow('window_frame')
+cv2.namedWindow('window_frame', cv2.WINDOW_NORMAL)
 
 vs = WebcamVideoStream(src=0).start()
 r_engine =RecognitionEngine(vs)

@@ -16,7 +16,8 @@ class RecognitionEngine:
 
         self.VideoStreamer = VideoStreamer
         # parameters for loading data and images
-        self.emotion_model_path = './Engine/trained_models/emotion_models/fer2013_mini_XCEPTION.102-0.66.hdf5'
+        # self.emotion_model_path = './Engine/trained_models/emotion_models/fer2013_mini_XCEPTION.102-0.66.hdf5'
+        self.emotion_model_path = './Engine/trained_models/emotion_models/fer_cohn_disgust_to_anger_Tiny_XCEPTION_67.hdf5'
 
         # TODO implement gpu capability
         self.use_gpu=use_gpu
@@ -45,12 +46,19 @@ class RecognitionEngine:
 
         count = 0
 
-        emotion_labels = get_labels('fer2013')
+        # emotion_labels = get_labels('fer2013')
+        # emotion_labels ={0:"angry", 1:"happy", 2:"sad", 3:"surprise", 4:"neutral", 5:"fear"}
+        emotion_labels = {0: "angry", 1: "fear", 2: "happy", 3: "sad", 4: "surprise", 5: "neutral"}
+
+
 
         # starting lists for calculating modes
         emotion_window = []
         face_names = []
         frame_window = 10
+
+        # Load our overlay image: mustache.png
+
 
         while True:
 
@@ -97,6 +105,8 @@ class RecognitionEngine:
                         gray_face = np.expand_dims(gray_face, -1)
                         emotion_prediction = self.emotion_classifier.predict(gray_face)
 
+
+
                         # angry = emotion_prediction[0][0]
                         # disgust = emotion_prediction[0][1]
                         # fear = emotion_prediction[0][2]
@@ -111,6 +121,8 @@ class RecognitionEngine:
 
                         emotion_probability = np.max(emotion_prediction)
                         emotion_label_arg = np.argmax(emotion_prediction)
+                        # print(emotion_prediction)
+
                         emotion_text = emotion_labels[emotion_label_arg]
 
                         output_text = str(emotion_text) + " " + "%d" % (round(emotion_probability, 2) * 100) + "%"
@@ -124,12 +136,14 @@ class RecognitionEngine:
                         # except:
                         #     continue
 
+                        # name = output_text
+
                         if emotion_text == 'angry':
                             color = np.asarray((0, 0, 255))
                             color_text = (255, 255, 255)
-                        elif emotion_text == 'disgust':
-                            color = np.asarray((88, 105, 126))
-                            color_text = (255, 255, 255)
+                        # elif emotion_text == 'disgust':
+                        #     color = np.asarray((88, 105, 126))
+                        #     color_text = (255, 255, 255)
                         elif emotion_text == 'fear':
                             color = np.asarray((160, 160, 160))
                             color_text = (255, 255, 255)
@@ -142,14 +156,20 @@ class RecognitionEngine:
                         elif emotion_text == 'surprise':
                             color = np.asarray((136, 73, 143))
                             color_text = ( 255, 255, 255)
+
                         elif emotion_text == 'neutral':
+                            # emotion_text= 'neutral'
                             color = np.asarray((83, 221, 108))
                             color_text = (255, 255, 255)
+
+                        output_text = str(emotion_text) + " " + "%d" % (round(emotion_probability, 2) * 100) + "%"
+                        emotion_window.append(output_text)
+                        name = output_text
+
 
                         color = color.astype(int)
                         color = color.tolist()
 
-                        name = output_text
                         face_names.append(name)
 
                         print(output_text)
@@ -159,12 +179,14 @@ class RecognitionEngine:
                         bottom *= 4
                         left *= 4
 
+
                         # Draw a box around the face
                         cv2.rectangle(frame, (left, top), (right, bottom), color, 2)
 
                         # Draw a label with a name below the face
-                        cv2.rectangle(frame, (left, bottom - 35), (right, bottom), color, cv2.FILLED)
+                        cv2.rectangle(frame, (left, bottom - 30), (right, bottom), color, cv2.FILLED)
                         font = cv2.FONT_HERSHEY_DUPLEX
+
                         cv2.putText(frame, name, (left + 6, bottom - 6), font, 1.0, color_text, 1)
 
                     if not self.Q.full():
