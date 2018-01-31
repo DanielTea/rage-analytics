@@ -8,6 +8,8 @@ from flask_socketio import SocketIO, send, emit
 from keras.models import load_model
 from realtime_VideoStreamer import VideoStreamer
 from keras import backend as K
+import time
+import datetime
 
 from realtime_RecognitionEngine_textOutput_v2 import RecognitionEngine
 import multiprocessing.dummy as mp
@@ -52,9 +54,6 @@ def handle_top_five_streamer(arg1):
     print('RECEIVED: ' + str(arg1))
     print("")
 
-
-
-    K.clear_session()
     emit('sessionStatus', '0', namespace='/stream') # deleted network
 
     tf.reset_default_graph()
@@ -66,8 +65,9 @@ def handle_top_five_streamer(arg1):
     game = arg1['game']
 
     resolution = '360p'
-
     video_streamer_list = []
+
+
 
     def get_video(link):
          vs = VideoStreamer("https://www.twitch.tv"+str(link), queueSize=128, resolution=resolution, n_frame=15)
@@ -94,12 +94,12 @@ def handle_top_five_streamer(arg1):
             text = "[" + str(element[0]) + ", " +str(element[1]) + ", " + str(element[2]) + "]"
             print(text)
 
-            f = open('emotion_logging.csv', 'wb')
-            f.write(str(element[0]) + ";" +str(element[1]) + ";" + str(element[2])+";"+str(game)+"/n")
-            f.close()
+            with open('emotion_logging.txt', 'a') as f:
+                f.write("{};{};{};{};{}\n".format(str(element[0]), str(element[1]), str(element[2]), str(game), datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')))
+                f.close()
 
             if element[1] == "angry":
-                emit('rageIncoming', {'link': str(element[0]), 'confidence': str(element[2])}, namespace='/stream', broadcast=True)
+                emit('rageIncoming', {'link': str(element[0]), 'confidence': str(element[2]), 'game':game}, namespace='/stream', broadcast=True)
 
         else:
             continue

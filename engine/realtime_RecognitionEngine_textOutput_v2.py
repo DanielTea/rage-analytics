@@ -1,4 +1,4 @@
- from statistics import mode
+from statistics import mode
 from threading import Thread
 from queue import Queue
 import cv2
