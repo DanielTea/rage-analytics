@@ -16,7 +16,7 @@ import datetime
 from realtime_RecognitionEngine_textOutput_v2 import RecognitionEngine
 import multiprocessing.dummy as mp
 
-emotion_model_path = './Engine/trained_models/emotion_models/fer2013_mini_XCEPTION.102-0.66.hdf5'
+emotion_model_path = './Engine/trained_models/emotion_models/fer_cohn_disgust_to_anger_Tiny_XCEPTION_67.hdf5'
 emotion_classifier = load_model(emotion_model_path, compile=False)
 emotion_classifier._make_predict_function()
 
