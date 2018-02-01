@@ -58,6 +58,9 @@ let rageLimit = 0.3;
 let toDo = checkUrl();
 toDo();
 buildSettingsIcon();
+checkIfNoRageIsInViewport();
+
+setInterval(checkIfNoRageIsInViewport, 1000);
 
 // window.addEventListener("load", function()
 // {
@@ -94,17 +97,17 @@ socket.on("sessionStatus", function(msg) { handleSessionStatus(msg) });
 
 socket.on("rageIncoming", function(msg)
 {
-  console.log("MESSAGE: ", msg)
   if (msg.confidence > confidenceThreshold && msg.game == activeGame)
   {
     if(regExForStreamerSelection.test(currentUrl))
     {
-      console.log("RAGE INCOMING SELECTION");
+      console.log("RAGE INCOMING SELECTION " + msg.linkg);
 
       let oldText = S("a[href='" + msg.link + "']  > span.rage-overlay-text");
       oldText.forEach(item => item.remove());
 
       showRage(msg.link);
+
       let thisStreamer = currentStreamer.get(msg.link);
       clearTimeout(thisStreamer.timeout);
       thisStreamer.timeout = setTimeout(function () {
@@ -114,6 +117,8 @@ socket.on("rageIncoming", function(msg)
       redify();
       clearTimeout(timeOutDeredify);
       timeOutDeredify = setTimeout( function() { deredify() }, 3000);
+
+      checkIfNoRageIsInViewport();
 
     }
     else if(regExForWatchingAStream.test(currentUrl))
@@ -138,11 +143,43 @@ socket.on("rageIncoming", function(msg)
   }
 });
 
-// chrome.runtime.onMessage.addListener(
-//   function(request, sender, sendResponse) {
-//     rageLimit = request.confidence;
-//     console.log(rageLimit);
-//   });
+function checkIfNoRageIsInViewport()
+{
+  // .getBoundingClientRect().top < window.innerHeight
+  let ragingStreamers = S("a[href='/ogaminglol/videos']");
+  let flag = ragingStreamers.some(raging => raging.getBoundingClientRect().top > window.innerHeight);
+
+  if (flag && S(".no-rage-viewport-outer").length == 0)
+  {
+    let outerDiv = document.createElement("div");
+    let innerDiv = document.createElement("div");
+    let span = document.createElement("span");
+
+    outerDiv.classList.add("no-rage-viewport-outer");
+    outerDiv.classList.add("animated");
+    outerDiv.classList.add("slideInLeft");
+    innerDiv.classList.add("no-rage-viewport-inner");
+    span.classList.add("no-rage-viewport-text");
+
+    document.body.appendChild(outerDiv);
+    outerDiv.appendChild(innerDiv);
+    innerDiv.appendChild(span);
+
+    span.textContent = "Scroll down to see the rage!"
+  }
+  else
+  if (!flag && S(".no-rage-viewport-outer").length != 0)
+  {
+    let oldElem = S(".no-rage-viewport-outer")[0];
+    oldElem.classList.add("slideOutLeft");
+    setTimeout( function() {
+      oldElem.remove()
+    }, 1000);
+  }
+  console.log("IS IN VIEWPORT " + flag)
+
+
+}
 
 function buildSettingsIcon()
 {
