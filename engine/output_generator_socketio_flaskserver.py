@@ -64,7 +64,7 @@ def handle_top_five_streamer(arg1):
     link_list = arg1['streamer']
     game = arg1['game']
 
-    resolution = '360p'
+    resolution = '720p'
     video_streamer_list = []
 
     def get_video(link):
