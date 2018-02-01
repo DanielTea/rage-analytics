@@ -1,6 +1,5 @@
 var socket = io.connect('http://127.0.0.1:5000/stream');
 
-const confidenceThreshold = 0.2;
 const heartbeatTime = 3000;
 const overlayStyle = "rage-overlay-style-darker";
 const selectorsAndClasses =
@@ -51,24 +50,15 @@ let activeGame = "";
 
 let intervalUrl;
 let timeOutDeredify;
+let timeOutNoRageInViewport;
 
-let rageLimit = 0.3;
+let rageLimit = 0.6;
 
 // tell the background script o start a new Session
 let toDo = checkUrl();
 toDo();
 buildSettingsIcon();
-checkIfNoRageIsInViewport();
 
-setInterval(checkIfNoRageIsInViewport, 1000);
-
-// window.addEventListener("load", function()
-// {
-//   // tell the background script o start a new Session
-//   let toDo = checkUrl();
-//   toDo();
-//   console.log("WindowLoadEvent")
-// });
 
 window.addEventListener("newUrl", function()
 {
@@ -97,12 +87,11 @@ socket.on("sessionStatus", function(msg) { handleSessionStatus(msg) });
 
 socket.on("rageIncoming", function(msg)
 {
-  if (msg.confidence > confidenceThreshold && msg.game == activeGame)
+  console.log("Rage Incoming " + msg.link + " " + msg.confidence);
+  if (msg.confidence > rageLimit && msg.game == activeGame)
   {
-    if(regExForStreamerSelection.test(currentUrl))
+    if( regExForStreamerSelection.test(currentUrl) )
     {
-      console.log("RAGE INCOMING SELECTION " + msg.linkg);
-
       let oldText = S("a[href='" + msg.link + "']  > span.rage-overlay-text");
       oldText.forEach(item => item.remove());
 
@@ -123,7 +112,6 @@ socket.on("rageIncoming", function(msg)
     }
     else if(regExForWatchingAStream.test(currentUrl))
     {
-      console.log("RAGE INCOMING WATCHING " + msg.link);
       let streamer;
 
       redify();
@@ -145,11 +133,11 @@ socket.on("rageIncoming", function(msg)
 
 function checkIfNoRageIsInViewport()
 {
-  // .getBoundingClientRect().top < window.innerHeight
-  let ragingStreamers = S("a[href='/ogaminglol/videos']");
-  let flag = ragingStreamers.some(raging => raging.getBoundingClientRect().top > window.innerHeight);
 
-  if (flag && S(".no-rage-viewport-outer").length == 0)
+  let ragingStreamers = S(".rage-overlay");
+  let flag = ragingStreamers.some(raging => raging.getBoundingClientRect().top < window.innerHeight);
+
+  if (!flag && S(".no-rage-viewport-outer").length == 0)
   {
     let outerDiv = document.createElement("div");
     let innerDiv = document.createElement("div");
@@ -168,7 +156,7 @@ function checkIfNoRageIsInViewport()
     span.textContent = "Scroll down to see the rage!"
   }
   else
-  if (!flag && S(".no-rage-viewport-outer").length != 0)
+  if (flag && S(".no-rage-viewport-outer").length != 0)
   {
     let oldElem = S(".no-rage-viewport-outer")[0];
     oldElem.classList.add("slideOutLeft");
@@ -178,6 +166,17 @@ function checkIfNoRageIsInViewport()
   }
   console.log("IS IN VIEWPORT " + flag)
 
+  clearTimeout(timeOutNoRageInViewport);
+  timeOutNoRageInViewport = setTimeout(function () {
+    let oldElem = S(".no-rage-viewport-outer")[0];
+    if (oldElem != null)
+    {
+      oldElem.classList.add("slideOutLeft");
+      setTimeout( function() {
+        oldElem.remove()
+      }, 1000);
+    }
+  },3000);
 
 }
 
@@ -188,6 +187,7 @@ function buildSettingsIcon()
   let divInner = document.createElement("div");
 
   let barContainer = document.createElement("div");
+  let timeout;
 
 
   divOuter.classList.add("settings-outer");
@@ -244,7 +244,7 @@ function buildSettingsIcon()
     bar.setAttribute("data-index", i);
     barContainer.appendChild(bar);
 
-    if (i < 2)
+    if (i < 4)
       bar.classList.add("selected")
 
     bar.addEventListener("click", function(evt) {
@@ -260,7 +260,8 @@ function buildSettingsIcon()
           }
         });
 
-        rageLimit = 0.2 * index
+        rageLimit = 0.2 * index;
+        console.log("NEW LIMIT " + rageLimit);
       }
       else
       {
@@ -273,7 +274,14 @@ function buildSettingsIcon()
           barToSelect.classList.add("selected");
         }
         rageLimit = 0.2 * index;
+        console.log("NEW LIMIT " + rageLimit);
+
       }
+      clearTimeout(timeout);
+      timeout = setTimeout(function() {
+        divInner.children[0].classList.remove("rotated");
+        divOuter.classList.remove("expanded")
+      }, 3000);
     })
   }
   divInner.addEventListener("click", function() {
@@ -281,11 +289,16 @@ function buildSettingsIcon()
     {
       divInner.children[0].classList.remove("rotated");
       divOuter.classList.remove("expanded")
+      clearTimeout(timeout);
     }
     else
     {
       divInner.children[0].classList.add("rotated");
-      divOuter.classList.add("expanded")
+      divOuter.classList.add("expanded");
+      timeout = setTimeout(function() {
+        divInner.children[0].classList.remove("rotated");
+        divOuter.classList.remove("expanded")
+      }, 3000);
     }
   });
 }
