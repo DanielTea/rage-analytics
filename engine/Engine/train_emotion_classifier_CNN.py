@@ -1,10 +1,5 @@
-"""
-File: train_emotion_classifier.py
-Author: Octavio Arriaga
-Email: arriaga.camargo@gmail.com
-Github: https://github.com/oarriaga
-Description: Train emotion classification model
-"""
+# original copyright goes to: https://github.com/oarriaga
+# changes done by us
 
 from keras.callbacks import CSVLogger, ModelCheckpoint, EarlyStopping
 from keras.callbacks import ReduceLROnPlateau
